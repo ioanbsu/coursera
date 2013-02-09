@@ -13,7 +13,7 @@ public class TestUnionFind {
 
 
     public static void main(String[] args) {
-        new TestUnionFind().testQuickUnionFind();
+        new TestUnionFind().testWightedQuickUnionFind();
     }
 
     @Test
@@ -39,6 +39,25 @@ public class TestUnionFind {
         System.out.println("Enter length");
         int N = StdIn.readInt();
         UnionFinder uf = new QuickUnionFinder(N);
+        int p, q;
+        while (!StdIn.isEmpty()) {
+            p = StdIn.readInt();
+            q = StdIn.readInt();
+            if (!uf.connected(p, q)) {
+                uf.union(p, q);
+                System.out.println("Connected " + p + " and " + q);
+            } else {
+                System.out.println(p + " and " + q + " are already connected ");
+            }
+        }
+    }
+
+
+    @Test
+    public void testWightedQuickUnionFind() {
+        System.out.println("Enter length");
+        int N = StdIn.readInt();
+        UnionFinder uf = new WeightedQuickUnion(N);
         int p, q;
         while (!StdIn.isEmpty()) {
             p = StdIn.readInt();
