@@ -24,4 +24,5 @@ public class UnionFinderImpl extends AbstractUnionFinder{
     public boolean connected(int p, int q) {
         return idArray[p]==idArray[q];
     }
+
 }

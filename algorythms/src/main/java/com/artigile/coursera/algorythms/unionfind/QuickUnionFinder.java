@@ -12,15 +12,15 @@ public class QuickUnionFinder extends AbstractUnionFinder {
         super(n);
     }
 
-    public void union(int p, int q) {
-        idArray[getRoot(q)] =getRoot(p);
+    public void union(int rootP, int rootQ) {
+        idArray[rootQ] =getRoot(rootP);
     }
 
-    public boolean connected(int p, int q) {
-        return getRoot(p) == getRoot(q);
+    public boolean connected(int rootP, int rootQ) {
+        return rootP==rootQ;
     }
 
-    protected int getRoot(int i) {
+    public int getRoot(int i) {
         while (i != idArray[i]) {
             i = idArray[i];
         }

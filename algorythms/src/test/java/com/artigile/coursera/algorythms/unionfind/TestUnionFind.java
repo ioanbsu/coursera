@@ -39,12 +39,14 @@ public class TestUnionFind {
         System.out.println("Enter length");
         int N = StdIn.readInt();
         UnionFinder uf = new QuickUnionFinder(N);
-        int p, q;
+        int p, q, rootP, rootQ;
         while (!StdIn.isEmpty()) {
             p = StdIn.readInt();
             q = StdIn.readInt();
-            if (!uf.connected(p, q)) {
-                uf.union(p, q);
+            rootP = uf.getRoot(p);
+            rootQ = uf.getRoot(q);
+            if (!uf.connected(rootP, rootQ)) {
+                uf.union(rootP, rootQ);
                 System.out.println("Connected " + p + " and " + q);
             } else {
                 System.out.println(p + " and " + q + " are already connected ");
@@ -52,18 +54,19 @@ public class TestUnionFind {
         }
     }
 
-
     @Test
     public void testWightedQuickUnionFind() {
         System.out.println("Enter length");
         int N = StdIn.readInt();
         UnionFinder uf = new WeightedQuickUnion(N);
-        int p, q;
+        int p, q, rootP, rootQ;
         while (!StdIn.isEmpty()) {
             p = StdIn.readInt();
             q = StdIn.readInt();
-            if (!uf.connected(p, q)) {
-                uf.union(p, q);
+            rootP = uf.getRoot(p);
+            rootQ = uf.getRoot(q);
+            if (!uf.connected(rootP, rootQ)) {
+                uf.union(rootP, rootQ);
                 System.out.println("Connected " + p + " and " + q);
             } else {
                 System.out.println(p + " and " + q + " are already connected ");

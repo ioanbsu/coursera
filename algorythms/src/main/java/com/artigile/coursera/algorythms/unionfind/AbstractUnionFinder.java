@@ -15,4 +15,9 @@ public abstract class AbstractUnionFinder implements UnionFinder {
             idArray[i] = i;
         }
     }
+
+    public int getRoot(int i){
+        return i;
+    }
+
 }
