@@ -12,4 +12,5 @@ public interface UnionFinder {
     boolean connected(int p, int q);
 
     int getRoot(int i);
+
 }

@@ -1,5 +1,7 @@
 package com.artigile.coursera.algorythms.unionfind;
 
+import com.artigile.coursera.algorythms.StdIn;
+
 /**
  * User: ioanbsu
  * Date: 2/8/13
@@ -12,12 +14,19 @@ public class QuickUnionFinder extends AbstractUnionFinder {
         super(n);
     }
 
+    public static void main(String[] args) {
+        System.out.println("Enter length");
+        int N = StdIn.readInt();
+        QuickUnionFinder unionFinder = new QuickUnionFinder(N);
+        unionFinder.testUnionFind();
+    }
+
     public void union(int rootP, int rootQ) {
-        idArray[rootQ] =getRoot(rootP);
+        idArray[rootQ] =rootP;
     }
 
     public boolean connected(int rootP, int rootQ) {
-        return rootP==rootQ;
+        return rootP == rootQ;
     }
 
     public int getRoot(int i) {
