@@ -12,6 +12,7 @@ public class TestWeightedQuickUnionFind extends AbstractUnionTest {
         int N = 10;
         testUnion(new WeightedQuickUnion(N),union1);
         testUnion(new WeightedQuickUnion(N),union2);
+        testUnion(new WeightedQuickUnion(N),union3);
     }
 
 }

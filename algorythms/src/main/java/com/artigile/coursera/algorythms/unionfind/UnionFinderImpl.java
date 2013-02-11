@@ -21,8 +21,8 @@ public class UnionFinderImpl extends AbstractUnionFinder {
     }
 
     public void union(int p, int q) {
-        int newLinkValue = idArray[p];
-        int rewriteValues = idArray[q];
+        int newLinkValue = idArray[q];
+        int rewriteValues = idArray[p];
         for (int i = 0; i < idArray.length; i++) {
             if (rewriteValues == idArray[i]) {
                 idArray[i] = newLinkValue;

@@ -12,5 +12,6 @@ public class TextUnionFind extends AbstractUnionTest {
         int N = 10;
         testUnion(new UnionFinderImpl(N),union1);
         testUnion(new UnionFinderImpl(N),union2);
+        testUnion(new UnionFinderImpl(N),union3);
     }
 }

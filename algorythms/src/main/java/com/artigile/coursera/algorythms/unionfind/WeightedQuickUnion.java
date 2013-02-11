@@ -31,18 +31,17 @@ public class WeightedQuickUnion extends QuickUnionFinder {
     public void union(int p, int q) {
         int rootP = getRoot(p);
         int rootQ = getRoot(q);
-        if (weightArray[rootP] > weightArray[rootQ]) {
-            idArray[rootP] = rootQ;
+        if (weightArray[rootP] >= weightArray[rootQ]) {
+            idArray[rootQ] = rootP;
             weightArray[rootP] += weightArray[rootQ];
         } else {
-            idArray[rootQ] = rootP;
+            idArray[rootP] = rootQ;
             weightArray[rootQ] += weightArray[rootP];
         }
     }
 
     public int getRoot(int i) {
         while (i != idArray[i]) {
-            idArray[i] = idArray[idArray[i]];
             i = idArray[i];
         }
         return i;

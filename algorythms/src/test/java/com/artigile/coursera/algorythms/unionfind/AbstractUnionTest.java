@@ -32,6 +32,18 @@ public abstract class AbstractUnionTest {
             {7,3}
     };
 
+    protected int[][] union3=new int[][]{
+            {5,3},
+            {8,7},
+            {5,4},
+            {0,2},
+            {1,4},
+            {0,7},
+            {9,3},
+            {0,1},
+            {7,6}
+    };
+
 
     public void testUnion(UnionFinder uf, int[][] unionsArray) {
         for (int[] unions : unionsArray) {

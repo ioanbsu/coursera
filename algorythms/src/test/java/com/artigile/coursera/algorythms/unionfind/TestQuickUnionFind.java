@@ -15,6 +15,7 @@ public class TestQuickUnionFind extends AbstractUnionTest {
         int N = 10;
         testUnion(new QuickUnionFinder(N),union1);
         testUnion(new QuickUnionFinder(N),union2);
+        testUnion(new QuickUnionFinder(N),union3);
     }
 
 
