@@ -9,13 +9,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class TestPerlocation {
     public static void main(String[] args) {
-        Percolation percolation = new Percolation(3);
-        percolation.open(0,1);
-        percolation.open(0,2);
-        percolation.open(2,1);
-        printGrid(percolation, 3);
-        System.out.println(percolation.percolates());
-
         for (int i = 0; i < 50; i++) {
             runTest();
         }
@@ -23,9 +16,10 @@ public class TestPerlocation {
     }
 
     private static void runTest() {
-        int size = 1000;
+        int size = 10000;
         double probability = 0.5;
         Percolation percolation = new Percolation(size);
+        Stopwatch stopwatch=new Stopwatch().start();
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (getBoolean(probability)) {
@@ -33,11 +27,12 @@ public class TestPerlocation {
                 }
             }
         }
-       // printGrid(percolation, size);
-        Stopwatch stopwatch=new Stopwatch().start();
+        System.out.println("To build the array(milliseconds): "+ stopwatch.elapsed(TimeUnit.SECONDS));
      //   printGrid(percolation, size);
+        stopwatch.stop();
+        stopwatch=new Stopwatch().start();
         System.out.println(percolation.percolates() + "");
-        System.out.println(stopwatch.elapsed(TimeUnit.MICROSECONDS));
+        System.out.println("To check if there is path(microseconds):"+stopwatch.elapsed(TimeUnit.MICROSECONDS));
         stopwatch.stop();
     }
 
