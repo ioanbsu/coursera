@@ -32,13 +32,13 @@ public class Percolation {
         if (i > 0 && percolationGrid[i - 1][j]) {
             unionFinder.union(i * gridSize + j, (i - 1) * gridSize + j);
         }
-        if(j>0&& percolationGrid[i][j-1]){
+        if (j > 0 && percolationGrid[i][j - 1]) {
             unionFinder.union(i * gridSize + j, i * gridSize + j - 1);
         }
-        if(i<gridSize-1&& percolationGrid[i + 1][j]){
+        if (i < gridSize - 1 && percolationGrid[i + 1][j]) {
             unionFinder.union(i * gridSize + j, (i + 1) * gridSize + j);
         }
-        if(j<gridSize-1&& percolationGrid[i][j+1]){
+        if (j < gridSize - 1 && percolationGrid[i][j + 1]) {
             unionFinder.union(i * gridSize + j, i * gridSize + j + 1);
         }
     }
@@ -48,7 +48,7 @@ public class Percolation {
     }
 
     public boolean isFull(int i, int j) {
-        return !isOpen(i, j);
+        return unionFinder.connected(unionFinder.getRoot(gridSize * gridSize), unionFinder.getRoot(i * gridSize + j));
     }
 
     public boolean percolates() {
