@@ -14,7 +14,7 @@ public class PercolationStats {
     private double lastCalculatedMean = -1;
     private double lastCalculatedStdDev = -1;
 
-    private double magicNumber = 1.96; //not too much explanation was given in lectures about what this number is about...
+    private final double magicNumber = 1.96; //not too much explanation was given in lectures about what this number is about...
 
     /**
      * Constructor runs T times percolation tests and stores the results in resultsArray.
@@ -124,7 +124,8 @@ public class PercolationStats {
     private static void printCalculations(PercolationStats percolationStats) {
         //   System.out.println("Starting calculations...");
         //   Stopwatch stopwatch = new Stopwatch();
-        System.out.println(padEnd("\nmean", 40, ' ') + "= " + percolationStats.mean());
+        System.out.println("");
+        System.out.println(padEnd("mean", 40, ' ') + "= " + percolationStats.mean());
         System.out.println(padEnd("stddev", 40, ' ') + "= " + percolationStats.stddev());
         System.out.println(padEnd("95% confidence interval", 40, ' ') + "= " + percolationStats.confidenceLo() + ", " + percolationStats.confidenceHi());
         // System.out.println(padEnd("Calculations time(in seconds): ", 40, ' ') + stopwatch.elapsedTime() + "\n");
