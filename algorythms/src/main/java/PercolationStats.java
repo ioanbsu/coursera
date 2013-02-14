@@ -14,7 +14,7 @@ public class PercolationStats {
     private double lastCalculatedMean = -1;
     private double lastCalculatedStdDev = -1;
 
-    private final double magicNumber = 1.96; //not too much explanation was given in lectures about what this number is about...
+    private final double MAGIC_NUMBER = 1.96; //not too much explanation was given in lectures about what this number is about...
 
     /**
      * Constructor runs T times percolation tests and stores the results in resultsArray.
@@ -66,14 +66,14 @@ public class PercolationStats {
      * @return lower bound of the 95% confidence interval
      */
     public double confidenceLo() {
-        return mean() - magicNumber * stddev() / Math.sqrt(computationTimes);
+        return mean() - MAGIC_NUMBER * stddev() / Math.sqrt(computationTimes);
     }
 
     /**
      * @return higher bound of the 95% confidence interval
      */
     public double confidenceHi() {
-        return mean() + magicNumber * stddev() / Math.sqrt(computationTimes);
+        return mean() + MAGIC_NUMBER * stddev() / Math.sqrt(computationTimes);
     }
 
 
