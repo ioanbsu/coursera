@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author IoaN, 2/12/13 8:10 PM
@@ -27,7 +26,7 @@ public class PercolationStats {
         for (int i = 0; i < computationTimes; i++) {
             resultsArray[i] = getOpenStep(new Percolation(gridSize));
         }
-        System.out.println("Initialization time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+        System.out.println("Initialization time(milliseconds): " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     public double mean() {
@@ -63,6 +62,20 @@ public class PercolationStats {
         return mean() + 1.96 * stddev() / Math.sqrt(computationTimes);
     }
 
+    private int getOpenStep(Percolation percolation) {
+        Set<Integer> openedItems = new HashSet<>();
+        Random randomInteger = new Random();
+        int openedBlocks = 0;
+        while (!percolation.percolates()) {
+            int nextInteger = randomInteger.nextInt(gridSize * gridSize);
+            if (!openedItems.contains(nextInteger)) {
+                openedItems.add(nextInteger);
+                percolation.open(nextInteger / gridSize, nextInteger % gridSize);
+                openedBlocks++;
+            }
+        }
+        return openedBlocks;
+    }
 
     ///======================================================================================================
     ///======================================================================================================
@@ -87,20 +100,6 @@ public class PercolationStats {
         }
     }
 
-    private int getOpenStep(Percolation percolation) {
-        Set<Integer> openedItems = new HashSet<>();
-        Random randomInteger = new Random();
-        int openedBlocks = 0;
-        while (!percolation.percolates()) {
-            int nextInteger = randomInteger.nextInt(gridSize * gridSize);
-            if (!openedItems.contains(nextInteger)) {
-                openedItems.add(nextInteger);
-                percolation.open(nextInteger / gridSize, nextInteger % gridSize);
-                openedBlocks++;
-            }
-        }
-        return openedBlocks;
-    }
 
     private static void printCalculations(PercolationStats percolationStats) {
         System.out.println("Starting pre-calculations...");
@@ -110,7 +109,6 @@ public class PercolationStats {
     }
 
     public static String padEnd(String string, int minLength, char padChar) {
-        checkNotNull(string);  // eager for GWT.
         if (string.length() >= minLength) {
             return string;
         }
