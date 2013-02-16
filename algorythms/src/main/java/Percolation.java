@@ -45,22 +45,24 @@ public class Percolation {
     public void open(int i, int j) {
         i = i - 1;
         j = j - 1;
-        percolationGrid[i][j] = true;
-        if (i > 0 && percolationGrid[i - 1][j]) {
-            unionFinder.union(i * gridSize + j, (i - 1) * gridSize + j);
-            unionFullFinder.union(i * gridSize + j, (i - 1) * gridSize + j);
-        }
-        if (j > 0 && percolationGrid[i][j - 1]) {
-            unionFinder.union(i * gridSize + j, i * gridSize + j - 1);
-            unionFullFinder.union(i * gridSize + j, i * gridSize + j - 1);
-        }
-        if (i < gridSize - 1 && percolationGrid[i + 1][j]) {
-            unionFinder.union(i * gridSize + j, (i + 1) * gridSize + j);
-            unionFullFinder.union(i * gridSize + j, (i + 1) * gridSize + j);
-        }
-        if (j < gridSize - 1 && percolationGrid[i][j + 1]) {
-            unionFinder.union(i * gridSize + j, i * gridSize + j + 1);
-            unionFullFinder.union(i * gridSize + j, i * gridSize + j + 1);
+        if (!percolationGrid[i][j]) {
+            percolationGrid[i][j] = true;
+            if (i > 0 && percolationGrid[i - 1][j]) {
+                unionFinder.union(i * gridSize + j, (i - 1) * gridSize + j);
+                unionFullFinder.union(i * gridSize + j, (i - 1) * gridSize + j);
+            }
+            if (j > 0 && percolationGrid[i][j - 1]) {
+                unionFinder.union(i * gridSize + j, i * gridSize + j - 1);
+                unionFullFinder.union(i * gridSize + j, i * gridSize + j - 1);
+            }
+            if (i < gridSize - 1 && percolationGrid[i + 1][j]) {
+                unionFinder.union(i * gridSize + j, (i + 1) * gridSize + j);
+                unionFullFinder.union(i * gridSize + j, (i + 1) * gridSize + j);
+            }
+            if (j < gridSize - 1 && percolationGrid[i][j + 1]) {
+                unionFinder.union(i * gridSize + j, i * gridSize + j + 1);
+                unionFullFinder.union(i * gridSize + j, i * gridSize + j + 1);
+            }
         }
     }
 
