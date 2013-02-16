@@ -1,4 +1,4 @@
-package com.artigile.coursera.algorythms.unionfind;
+package com.artigile.coursera.algorythms.week1.unionfind;
 
 import org.junit.Test;
 

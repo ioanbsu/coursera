@@ -1,7 +1,7 @@
 package com.artigile.coursera.algorythms.week1;
 
-import com.artigile.coursera.algorythms.unionfind.UnionFinder;
-import com.artigile.coursera.algorythms.unionfind.WeightedQUWithPathCompression;
+import com.artigile.coursera.algorythms.week1.unionfind.UnionFinder;
+import com.artigile.coursera.algorythms.week1.unionfind.WeightedQUWithPathCompression;
 
 /**
  * @author IoaN, 2/12/13 8:10 PM

@@ -63,7 +63,7 @@ public class PercolationStats {
     }
 
     private int getOpenStep(Percolation percolation) {
-        Set<Integer> openedItems = new HashSet<>();
+        Set<Integer> openedItems = new HashSet<Integer>();
         Random randomInteger = new Random();
         int openedBlocks = 0;
         while (!percolation.percolates()) {

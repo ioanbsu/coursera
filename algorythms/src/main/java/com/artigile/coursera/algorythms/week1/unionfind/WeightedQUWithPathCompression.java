@@ -1,4 +1,4 @@
-package com.artigile.coursera.algorythms.unionfind;
+package com.artigile.coursera.algorythms.week1.unionfind;
 
 /**
  * @author IoaN, 2/10/13 6:43 PM
