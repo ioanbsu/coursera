@@ -14,7 +14,7 @@ public class PercolationStats {
     private double lastCalculatedMean = -1;
     private double lastCalculatedStdDev = -1;
 
-    private final double MAGIC_NUMBER = 1.96; //not too much explanation was given in lectures about what this number is about...
+    private static final double MAGIC_NUMBER = 1.96; //not too much explanation was given in lectures about what this number is about...
 
     /**
      * Constructor runs T times percolation tests and stores the results in resultsArray.
@@ -131,7 +131,7 @@ public class PercolationStats {
         // System.out.println(padEnd("Calculations time(in seconds): ", 40, ' ') + stopwatch.elapsedTime() + "\n");
     }
 
-    public static String padEnd(String string, int minLength, char padChar) {
+    private static String padEnd(String string, int minLength, char padChar) {
         if (string.length() >= minLength) {
             return string;
         }
