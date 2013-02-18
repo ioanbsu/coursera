@@ -9,7 +9,7 @@ import java.util.Random;
  */
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private static Random random = new Random(System.currentTimeMillis());
-    protected Item[] mainArray;
+    private Item[] mainArray;
     int size = 0;
 
     public RandomizedQueue() {
