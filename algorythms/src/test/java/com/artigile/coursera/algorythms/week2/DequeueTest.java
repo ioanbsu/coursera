@@ -1,15 +1,22 @@
 package com.artigile.coursera.algorythms.week2;
 
+import com.artigile.coursera.algorythms.AbstractCourseraTest;
 import junit.framework.Assert;
 import org.junit.Test;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
 
 /**
  * @author IoaN, 2/16/13 9:09 PM
  */
-public class DequeueTest {
-
+public class DequeueTest extends AbstractCourseraTest{
+    
     @Test
     public void testAllInConsole() throws Exception {
         Deque<String> queue = new Deque<String>();
@@ -24,28 +31,71 @@ public class DequeueTest {
                     queue.addLast("" + i);
                 }
             }
-            System.out.println(MessageFormat.format("Created. Expected size [{0}], Actual size [{1}]", size, queue.size()));
-            System.out.println("Printing array");
+            log(MessageFormat.format("Created. Expected size [{0}], Actual size [{1}]", size, queue.size()));
+            log("Printing array");
             for (String arrayElement : queue) {
                 System.out.print(arrayElement + " ");
             }
-            System.out.println("\n=== Now Removing===");
+            log("\n=== Now Removing===");
             if (Math.random() > 0.5) {
                 for (int i = 0; i < size; i++) {
-                    Assert.assertEquals(size - i, queue.size());
+                    assertEquals(size - i, queue.size());
                     removeRandomly(queue);
-                    Assert.assertEquals(size - i - 1, queue.size());
+                    assertEquals(size - i - 1, queue.size());
                 }
             } else {
                 while (!queue.isEmpty()) {
                     removeRandomly(queue);
                 }
             }
-            Assert.assertEquals(0, queue.size());
-            System.out.println(MessageFormat.format("\nData had been randomly removed. Remained size:{0}", queue.size()));
+            assertEquals(0, queue.size());
+            log(MessageFormat.format("\nData had been randomly removed. Remained size:{0}", queue.size()));
 
 
         }
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testEmptyQueueRemoveLast(){
+        Deque<String> deque=new Deque<String>();
+        assertEquals(0, deque.size());
+        assertTrue(deque.isEmpty());
+        deque.removeLast();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testEmptyQueueRemoveFirst(){
+        Deque<String> deque=new Deque<String>();
+        deque.removeFirst();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddFirstNullElement(){
+        Deque<String> deque=new Deque<String>();
+        deque.addFirst("blablabla");
+        deque.addFirst(null);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testAddLastNullElement(){
+        Deque<String> deque=new Deque<String>();
+        deque.addFirst("blablabla");
+        deque.addLast(null);
+    }
+
+    @Test(expected = UnsupportedOperationException .class)
+    public void testRemoveOnIterator(){
+        Deque<String> deque=new Deque<String>();
+        deque.iterator().remove();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void testNextWhenDoesNotExists(){
+        Deque<String> deque=new Deque<String>();
+        deque.addFirst("blablabla");
+        Iterator<String> iterator=deque.iterator();
+        iterator.next();
+        iterator.next();
     }
 
     private void removeRandomly(Deque<String> queue) {
@@ -55,4 +105,6 @@ public class DequeueTest {
             System.out.print(queue.removeLast() + " ");
         }
     }
+    
+
 }

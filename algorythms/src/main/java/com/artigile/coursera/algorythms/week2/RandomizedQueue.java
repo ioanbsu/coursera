@@ -67,6 +67,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // delete and return a random item
     public Item dequeue() {
+        checkToRemove();
         if(size()==1){
             size--;
             return first.item;
@@ -88,6 +89,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // return (but do not delete) a random item
     public Item sample() {
+        if(isEmpty()){
+           return null;
+        }
         return getNode(random.nextInt(size())).item;
     }
 
@@ -144,6 +148,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         @Override
         public Item next() {
+            if(!hasNext()){
+                throw new NoSuchElementException();
+            }
             if (!isEmpty()) {
                 return getNode(currentIndex++).item;
             }
