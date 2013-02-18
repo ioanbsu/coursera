@@ -1,8 +1,9 @@
-package com.artigile.coursera.algorythms.week2;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+/**
+ * @author IoaN, 2/17/13 9:07 PM
+ */
 public class Deque<Item> implements Iterable<Item> {
     private Node first;
     private Node last;

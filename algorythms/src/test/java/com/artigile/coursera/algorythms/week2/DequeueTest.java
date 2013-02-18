@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import static junit.framework.Assert.assertEquals;
@@ -21,10 +22,12 @@ public class DequeueTest extends AbstractCourseraTest{
     public void testAllInConsole() throws Exception {
         Deque<String> queue = new Deque<String>();
 
+        List<String> array=new ArrayList<String>();
         for (int RRR = 0; RRR < 1000; RRR++) {
 
             int size = (int) (Math.random() * 50);
             for (int i = 0; i < size; i++) {
+                array.add(i+"");
                 if (Math.random() > 0.5) {
                     queue.addFirst("" + i);
                 } else {
@@ -34,8 +37,10 @@ public class DequeueTest extends AbstractCourseraTest{
             log(MessageFormat.format("Created. Expected size [{0}], Actual size [{1}]", size, queue.size()));
             log("Printing array");
             for (String arrayElement : queue) {
+                array.remove(arrayElement);
                 System.out.print(arrayElement + " ");
             }
+            assertEquals(0,array.size());
             log("\n=== Now Removing===");
             if (Math.random() > 0.5) {
                 for (int i = 0; i < size; i++) {

@@ -1,11 +1,9 @@
-package com.artigile.coursera.algorythms.week2;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
 /**
- * @author IoaN, 2/18/13 10:10 AM
+ * @author IoaN, 2/17/13 9:20 PM
  */
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private static Random random = new Random(System.currentTimeMillis());
@@ -14,26 +12,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     public RandomizedQueue() {
         mainArray = (Item[]) new Object[1];
-    }
-
-    /**
-     * Rearrange the elements of an int array in random order.
-     */
-    private static void shuffle(int[] a) {
-        int N = a.length;
-        for (int i = 0; i < N; i++) {
-            int r = i + uniform(N - i);     // between i and N-1
-            int temp = a[i];
-            a[i] = a[r];
-            a[r] = temp;
-        }
-    }
-
-    /**
-     * Return an integer uniformly between 0 (inclusive) and N (exclusive).
-     */
-    private static int uniform(int N) {
-        return random.nextInt(N);
     }
 
     // is the queue empty?
@@ -111,7 +89,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             for (int i = 0; i < indexesArray.length; i++) {
                 indexesArray[i] = i;
             }
-            shuffle(indexesArray);
+            StdRandom.shuffle(indexesArray);
         }
 
         @Override
@@ -136,3 +114,4 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
     }
 }
+
