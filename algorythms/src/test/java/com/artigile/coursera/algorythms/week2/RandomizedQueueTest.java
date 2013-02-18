@@ -3,13 +3,11 @@ package com.artigile.coursera.algorythms.week2;
 import com.artigile.coursera.algorythms.AbstractCourseraTest;
 import com.google.common.base.Stopwatch;
 import junit.framework.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
@@ -104,13 +102,13 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
 
     @Test
     public void timingTests() {
-        int totalNumberOfTests = 1024;
-        for (int j = 0; j < 5; j++) {
+        int[] numbersToTest = new int[]{4096, 16384, 128000, 256000, 1024000, 2048000};
+        for (int numberToTest : numbersToTest) {
             RandomizedQueue<String> queue = new RandomizedQueue<String>();
 
-            System.out.println("Running for size: " + totalNumberOfTests);
+            System.out.println("Running for size: " + numberToTest);
             Stopwatch stopwatch = new Stopwatch().start();
-            for (int i = 0; i < totalNumberOfTests; i++) {
+            for (int i = 0; i < numberToTest; i++) {
                 queue.enqueue(i + "");
             }
             System.out.println("Enqueue: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
@@ -118,8 +116,69 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
 
             System.out.print("Sampling:");
             stopwatch = new Stopwatch().start();
-            for (int i = 0; i < totalNumberOfTests; i++) {
+            for (int i = 0; i < numberToTest; i++) {
                 queue.sample();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Is Empty:");
+            stopwatch = new Stopwatch().start();
+            for (int i = 0; i < numberToTest; i++) {
+                queue.isEmpty();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Size:");
+            stopwatch = new Stopwatch().start();
+            for (int i = 0; i < numberToTest; i++) {
+                queue.size();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Iterator:");
+            stopwatch = new Stopwatch().start();
+            Iterator<String> valuesIterator = queue.iterator();
+            while (valuesIterator.hasNext()) {
+                valuesIterator.next();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Dequeing:");
+            stopwatch = new Stopwatch().start();
+            for (int i = 0; i < numberToTest; i++) {
+                queue.dequeue();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.println("======================");
+
+        }
+    }
+
+    @Test
+    @Ignore
+    public void timingTestsArrayList() {
+        int totalNumberOfTests = 1024;
+        for (int j = 0; j < 10; j++) {
+            ArrayDeque<String> queue = new ArrayDeque<String>();
+
+            System.out.println("Running for size: " + totalNumberOfTests);
+            Stopwatch stopwatch = new Stopwatch().start();
+            for (int i = 0; i < totalNumberOfTests; i++) {
+                queue.add(i + "");
+            }
+            System.out.println("Enqueue: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Sampling:");
+            stopwatch = new Stopwatch().start();
+            for (int i = 0; i < totalNumberOfTests; i++) {
+                queue.getFirst();
             }
             System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.stop();
@@ -152,7 +211,7 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
             System.out.print("Dequeing:");
             stopwatch = new Stopwatch().start();
             for (int i = 0; i < totalNumberOfTests; i++) {
-                queue.dequeue();
+                queue.removeFirst();
             }
             System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.stop();
