@@ -8,7 +8,7 @@ import java.util.Random;
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private static Random random = new Random(System.currentTimeMillis());
     private Item[] mainArray;
-    int size = 0;
+    private int size = 0;
 
     public RandomizedQueue() {
         mainArray = (Item[]) new Object[1];
