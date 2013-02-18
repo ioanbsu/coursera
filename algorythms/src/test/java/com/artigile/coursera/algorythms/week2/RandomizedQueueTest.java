@@ -89,7 +89,7 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
             if (Math.random() < 0.9) {
                 log(i + ": Added");
                 queue.enqueue(i + "");
-            } else if(!queue.isEmpty()){
+            } else if (!queue.isEmpty()) {
                 queue.dequeue();
                 log(i + ": Removed");
             }
@@ -113,7 +113,7 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
             for (int i = 0; i < totalNumberOfTests; i++) {
                 queue.enqueue(i + "");
             }
-            System.out.println("Time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            System.out.println("Enqueue: " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.stop();
 
             System.out.print("Sampling:");
@@ -136,6 +136,15 @@ public class RandomizedQueueTest extends AbstractCourseraTest {
             stopwatch = new Stopwatch().start();
             for (int i = 0; i < totalNumberOfTests; i++) {
                 queue.size();
+            }
+            System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+            stopwatch.stop();
+
+            System.out.print("Iterator:");
+            stopwatch = new Stopwatch().start();
+            Iterator<String> valuesIterator = queue.iterator();
+            while (valuesIterator.hasNext()) {
+                valuesIterator.next();
             }
             System.out.println(stopwatch.elapsed(TimeUnit.MILLISECONDS));
             stopwatch.stop();

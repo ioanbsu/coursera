@@ -38,16 +38,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     public Item dequeue() {
         checkIfEmptyAndThrow();
         int itemIndexToRemove = random.nextInt(size());
-        Item itemToRemove = mainArray[itemIndexToRemove];
-        if (itemIndexToRemove == 0) {
-            System.arraycopy(mainArray, 1, mainArray, 0, size() - 1);
-        } else if (itemIndexToRemove == size() - 1) {
-            System.arraycopy(mainArray, 0, mainArray, 0, size() - 1);
-        } else {
-            System.arraycopy(mainArray, 0, mainArray, 0, itemIndexToRemove);
-            System.arraycopy(mainArray, itemIndexToRemove + 1, mainArray, itemIndexToRemove, size() - 1 - itemIndexToRemove);
+        Item itemToRemove = removeItemInArray(itemIndexToRemove);
+        if (size > 0 && size == mainArray.length / 4) {
+            resizeArrayCapacity(mainArray.length / 2);
         }
-        size--;
         return itemToRemove;
     }
 
@@ -59,6 +53,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     @Override
     public Iterator<Item> iterator() {
         return new RandomIterator();
+    }
+
+    private Item removeItemInArray(int itemIndexToRemove) {
+        Item itemToRemove = mainArray[itemIndexToRemove];
+        int numMoved = size - itemIndexToRemove - 1;
+        if (numMoved > 0)
+            System.arraycopy(mainArray, itemIndexToRemove + 1, mainArray, itemIndexToRemove, numMoved);
+        mainArray[--size] = null;
+        return itemToRemove;
     }
 
     private void resizeArrayCapacity(int arrayCapacity) {
