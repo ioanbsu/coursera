@@ -42,7 +42,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         mainArray[itemIndexToRemove] = mainArray[size() - 1];
         mainArray[size() - 1] = null;
         size--;
-//        removeItemInArray(itemIndexToRemove);
         if (size > 0 && size == mainArray.length / 4) {
             resizeArrayCapacity(mainArray.length / 2);
         }
@@ -77,40 +76,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
     }
 
-    /**
-     * Rearrange the elements of an int array in random order.
-     */
-    private void shuffle(int[] a) {
-        int N = a.length;
-        for (int i = 0; i < N; i++) {
-            int r = i + uniform(N - i);     // between i and N-1
-            int temp = a[i];
-            a[i] = a[r];
-            a[r] = temp;
-        }
-    }
-
-    /**
-     * Rearrange the elements of the subarray a[lo..hi] in random order.
-     */
-    private void shuffle(Object[] a, int lo, int hi) {
-        if (lo < 0 || lo > hi || hi >= a.length)
-            throw new RuntimeException("Illegal subarray range");
-        for (int i = lo; i <= hi; i++) {
-            int r = i + uniform(hi - i + 1);     // between i and hi
-            Object temp = a[i];
-            a[i] = a[r];
-            a[r] = temp;
-        }
-    }
-
-    /**
-     * Return an integer uniformly between 0 (inclusive) and N (exclusive).
-     */
-    private int uniform(int N) {
-        return random.nextInt(N);
-    }
-
     private class RandomIterator implements Iterator<Item> {
 
         private int[] indexesArray;
@@ -121,7 +86,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             for (int i = 0; i < indexesArray.length; i++) {
                 indexesArray[i] = i;
             }
-            shuffle(indexesArray);
+            StdRandom.shuffle(indexesArray);
         }
 
         @Override
