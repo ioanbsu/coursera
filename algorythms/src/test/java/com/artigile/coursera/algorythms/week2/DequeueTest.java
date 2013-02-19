@@ -1,7 +1,7 @@
 package com.artigile.coursera.algorythms.week2;
 
 import com.artigile.coursera.algorythms.AbstractCourseraTest;
-import junit.framework.Assert;
+import com.google.common.base.Stopwatch;
 import org.junit.Test;
 
 import java.text.MessageFormat;
@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -16,18 +17,18 @@ import static junit.framework.Assert.assertTrue;
 /**
  * @author IoaN, 2/16/13 9:09 PM
  */
-public class DequeueTest extends AbstractCourseraTest{
-    
+public class DequeueTest extends AbstractCourseraTest {
+
     @Test
     public void testAllInConsole() throws Exception {
         Deque<String> queue = new Deque<String>();
 
-        List<String> array=new ArrayList<String>();
+        List<String> array = new ArrayList<String>();
         for (int RRR = 0; RRR < 1000; RRR++) {
 
             int size = (int) (Math.random() * 50);
             for (int i = 0; i < size; i++) {
-                array.add(i+"");
+                array.add(i + "");
                 if (Math.random() > 0.5) {
                     queue.addFirst("" + i);
                 } else {
@@ -40,7 +41,7 @@ public class DequeueTest extends AbstractCourseraTest{
                 array.remove(arrayElement);
                 System.out.print(arrayElement + " ");
             }
-            assertEquals(0,array.size());
+            assertEquals(0, array.size());
             log("\n=== Now Removing===");
             if (Math.random() > 0.5) {
                 for (int i = 0; i < size; i++) {
@@ -61,46 +62,58 @@ public class DequeueTest extends AbstractCourseraTest{
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void testEmptyQueueRemoveLast(){
-        Deque<String> deque=new Deque<String>();
+    public void testEmptyQueueRemoveLast() {
+        Deque<String> deque = new Deque<String>();
         assertEquals(0, deque.size());
         assertTrue(deque.isEmpty());
         deque.removeLast();
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void testEmptyQueueRemoveFirst(){
-        Deque<String> deque=new Deque<String>();
+    public void testEmptyQueueRemoveFirst() {
+        Deque<String> deque = new Deque<String>();
         deque.removeFirst();
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddFirstNullElement(){
-        Deque<String> deque=new Deque<String>();
+    public void testAddFirstNullElement() {
+        Deque<String> deque = new Deque<String>();
         deque.addFirst("blablabla");
         deque.addFirst(null);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testAddLastNullElement(){
-        Deque<String> deque=new Deque<String>();
+    public void testAddLastNullElement() {
+        Deque<String> deque = new Deque<String>();
         deque.addFirst("blablabla");
         deque.addLast(null);
     }
 
-    @Test(expected = UnsupportedOperationException .class)
-    public void testRemoveOnIterator(){
-        Deque<String> deque=new Deque<String>();
+    @Test(expected = UnsupportedOperationException.class)
+    public void testRemoveOnIterator() {
+        Deque<String> deque = new Deque<String>();
         deque.iterator().remove();
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void testNextWhenDoesNotExists(){
-        Deque<String> deque=new Deque<String>();
+    public void testNextWhenDoesNotExists() {
+        Deque<String> deque = new Deque<String>();
         deque.addFirst("blablabla");
-        Iterator<String> iterator=deque.iterator();
+        Iterator<String> iterator = deque.iterator();
         iterator.next();
         iterator.next();
+    }
+
+    @Test
+    public void testLoitering() {
+        Deque<String> deque = new Deque<String>();
+        for (int i = 0; i < 100; i++) {
+            deque.addFirst("blablabl");
+        }
+        for (int i = 0; i < 100; i++) {
+            deque.removeFirst();
+
+        }
     }
 
     private void removeRandomly(Deque<String> queue) {
@@ -110,6 +123,6 @@ public class DequeueTest extends AbstractCourseraTest{
             System.out.print(queue.removeLast() + " ");
         }
     }
-    
+
 
 }
