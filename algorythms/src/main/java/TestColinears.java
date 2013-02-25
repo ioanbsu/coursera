@@ -1,5 +1,4 @@
 import java.io.File;
-import java.util.Arrays;
 
 /**
  * @author IoaN, 2/24/13 10:33 AM
@@ -12,10 +11,11 @@ public class TestColinears {
             if (!file.getName().endsWith(".txt")) {
                 continue;
             }
-            System.out.println("File: " +file.getName());
+            System.out.println("File: " + file.getName());
             Fast.main(new String[]{"collinear/" + file.getName()});
             System.out.println("=========================");
         }
+        System.out.println("DONE!");
 
     }
 }
