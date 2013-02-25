@@ -8,12 +8,11 @@ import java.util.*;
 public class Fast {
     private static final int COLINEAR_COUNT = 3;
     private static String fileContent = null;
-    private static Set<String> drawSet = new HashSet<String>();
 
     public static void main(String[] args) throws Exception {
         readFile(args[0]);
         StdDraw.setScale(0, 32768);
-        StdDraw.setPenRadius(0.001);
+        StdDraw.setPenRadius(0.002);
         Point[] points = initiatePointsArray();
         Set<TreeSet<Point>> listOfColinearPoints = new HashSet<TreeSet<Point>>();
         for (int j = 0; j < points.length; j++) {
@@ -32,19 +31,12 @@ public class Fast {
                     pointsWithSameSlope.add(copiedArray[j]);
                 } else {
                     pointsWithSameSlope.add(copiedArray[j]);
-                    if (pointsWithSameSlope.size() >= COLINEAR_COUNT) {
-                        pointsWithSameSlope.add(points[i]);
-                        addPointsSetToFoundList(listOfColinearPoints, pointsWithSameSlope);
-                    }
+                    addPointToList(points, listOfColinearPoints, i, pointsWithSameSlope);
                     pointsWithSameSlope = new TreeSet<Point>();
                 }
             }
             pointsWithSameSlope.add(copiedArray[copiedArray.length-1]);
-
-            if (pointsWithSameSlope.size() >= COLINEAR_COUNT) {
-                pointsWithSameSlope.add(points[i]);
-                addPointsSetToFoundList(listOfColinearPoints, pointsWithSameSlope);
-            }
+            addPointToList(points, listOfColinearPoints, i, pointsWithSameSlope);
         }
         for (Set<Point> listOfColinearPoint : listOfColinearPoints) {
             Object[] pointsToPrint = listOfColinearPoint.toArray();
@@ -53,19 +45,11 @@ public class Fast {
         }
     }
 
-    private static void addPointsSetToFoundList(Set<TreeSet<Point>> listOfColinearPoints, TreeSet<Point> pointsWithSameSlope) {
-      /*  double insertSetSlope = getSetSlope(pointsWithSameSlope);
-        for (TreeSet<Point> listOfColinearPoint : listOfColinearPoints) {
-            if (insertSetSlope == getSetSlope(listOfColinearPoint)) {
-                return;
-            }
-        }*/
-        listOfColinearPoints.add(pointsWithSameSlope);
-    }
-
-    private static double getSetSlope(TreeSet<Point> pointsWithSameSlope) {
-        Iterator<Point> pointsIterator = pointsWithSameSlope.iterator();
-        return pointsIterator.next().slopeTo(pointsIterator.next());
+    private static void addPointToList(Point[] points, Set<TreeSet<Point>> listOfColinearPoints, int i, TreeSet<Point> pointsWithSameSlope) {
+        if (pointsWithSameSlope.size() >= COLINEAR_COUNT) {
+            pointsWithSameSlope.add(points[i]);
+            listOfColinearPoints.add(pointsWithSameSlope);
+        }
     }
 
     private static void printPoints(Object[] points) {
@@ -77,11 +61,7 @@ public class Fast {
 
             }
         }
-        String pointsLinkStrRepresentation = points[0] + " " + points[points.length - 1];
-//        if (!drawSet.contains(pointsLinkStrRepresentation)) {
         ((Point) points[0]).drawTo((Point) points[points.length - 1]);
-        drawSet.add(pointsLinkStrRepresentation);
-//        }
         StdOut.println(pointsPath.toString());
     }
 

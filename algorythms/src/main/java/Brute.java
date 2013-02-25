@@ -59,7 +59,7 @@ public class Brute {
         }
     }
 
-    //    ===============================reading from UnsatisfiedLinkError functions===========================
+    //    ===============================reading from file functions===========================
     private static Point[] initiatePointsArray() {
         int pointsSize = getNumberOfPoints();
         Point[] points = new Point[pointsSize];
