@@ -9,9 +9,6 @@ public class Point implements Comparable<Point> {
     public final Comparator<Point> SLOPE_ORDER = new Comparator<Point>() {
         @Override
         public int compare(Point o1, Point o2) {
-            if((o1.x==x&&o1.y==y) ||(o2.x==x&&o2.y==y)){
-                return 0;
-            }
             double slope1 = slopeTo(o1);
             double slope2 = slopeTo(o2);
             if (slope1 == slope2) {
@@ -34,12 +31,21 @@ public class Point implements Comparable<Point> {
 
     // unit test
     public static void main(String[] args) {
-        StdDraw.setScale(0,10);
-        StdDraw.setPenRadius(0.01);
-        Point p1 = new Point(1, 3);
-        Point p2 = new Point(9, 1);
-        p1.draw();
-        p2.draw();
+//        StdDraw.setScale(0,10);
+//        StdDraw.setPenRadius(0.01);
+       /* Point p = new Point(241, 58);
+        Point q = new Point(357, 111);
+        Point r = new Point(241, 58);
+        Point s = new Point(176, 390);*/
+
+        Point p = new Point(2,4);
+        Point q = new Point(5,1);
+        Point r = new Point(2,4);
+        System.out.println(p.SLOPE_ORDER.compare(q,r));
+        System.out.println(p.slopeTo(q));
+        System.out.println(p.slopeTo(r));
+//        System.out.println(p.SLOPE_ORDER.compare(r,s));
+//        System.out.println(p.SLOPE_ORDER.compare(q,s));
     }
 
     // plot this point to standard drawing
@@ -56,8 +62,14 @@ public class Point implements Comparable<Point> {
 
     // slope between this point and that point
     public double slopeTo(Point that) {
-        if (that.x == x) {
-            return Double.MAX_VALUE;
+        if(x==that.x){
+            if(y==that.y){
+                return Double.NEGATIVE_INFINITY;
+            }
+            return Double.POSITIVE_INFINITY;
+        }
+        if(y==that.y){
+            return 0;
         }
         return ((double) (that.y - y)) / (that.x - x);
     }
@@ -65,9 +77,6 @@ public class Point implements Comparable<Point> {
     // is this point lexicographically smaller than that one?
     // comparing y-coordinates and breaking ties by x-coordinates
     public int compareTo(Point that) {
-        if (that == null) {
-            return 1;
-        }
         if (that.y != y) {
             return y - that.y;
         } else {

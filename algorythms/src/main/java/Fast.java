@@ -6,27 +6,32 @@ import java.util.*;
  * @author IoaN, 2/23/13 10:29 PM
  */
 public class Fast {
-    public static final int COLINEAR_COUNT = 3;
+    private static final int COLINEAR_COUNT = 3;
     private static String fileContent = null;
+    private static Set<String> drawSet = new HashSet<String>();
 
     public static void main(String[] args) throws Exception {
         readFile(args[0]);
         StdDraw.setScale(0, 32768);
-        StdDraw.setPenRadius(0.005);
+        StdDraw.setPenRadius(0.001);
         Point[] points = initiatePointsArray();
         Set<TreeSet<Point>> listOfColinearPoints = new HashSet<TreeSet<Point>>();
+        for (int j = 0; j < points.length; j++) {
+            points[j].draw();
+        }
         for (int i = 0; i < points.length; i++) {
-            points[i].draw();
-            Arrays.sort(points, points[i].SLOPE_ORDER);
+            Point[] copiedArray = new Point[points.length];
+            System.arraycopy(points, 0, copiedArray, 0, copiedArray.length);
+            Arrays.sort(copiedArray, points[i].SLOPE_ORDER);
             TreeSet<Point> pointsWithSameSlope = new TreeSet<Point>();
-            for (int j = 0; j < points.length - 1; j++) {
-                if (i == j || i == j + 1) {
+            for (int j = 0; j < copiedArray.length - 1; j++) {
+                if (points[i] == copiedArray[j] || points[i] == copiedArray[j + 1]) {
                     continue;
                 }
-                if (points[i].slopeTo(points[j]) == points[i].slopeTo(points[j + 1])) {
-                    pointsWithSameSlope.add(points[j]);
+                if (points[i].slopeTo(copiedArray[j]) == points[i].slopeTo(copiedArray[j + 1])) {
+                    pointsWithSameSlope.add(copiedArray[j]);
                 } else {
-                    pointsWithSameSlope.add(points[j]);
+                    pointsWithSameSlope.add(copiedArray[j]);
                     if (pointsWithSameSlope.size() >= COLINEAR_COUNT) {
                         pointsWithSameSlope.add(points[i]);
                         addPointsSetToFoundList(listOfColinearPoints, pointsWithSameSlope);
@@ -34,6 +39,8 @@ public class Fast {
                     pointsWithSameSlope = new TreeSet<Point>();
                 }
             }
+            pointsWithSameSlope.add(copiedArray[copiedArray.length-1]);
+
             if (pointsWithSameSlope.size() >= COLINEAR_COUNT) {
                 pointsWithSameSlope.add(points[i]);
                 addPointsSetToFoundList(listOfColinearPoints, pointsWithSameSlope);
@@ -47,12 +54,12 @@ public class Fast {
     }
 
     private static void addPointsSetToFoundList(Set<TreeSet<Point>> listOfColinearPoints, TreeSet<Point> pointsWithSameSlope) {
-        double insertSetSlope = getSetSlope(pointsWithSameSlope);
+      /*  double insertSetSlope = getSetSlope(pointsWithSameSlope);
         for (TreeSet<Point> listOfColinearPoint : listOfColinearPoints) {
             if (insertSetSlope == getSetSlope(listOfColinearPoint)) {
                 return;
             }
-        }
+        }*/
         listOfColinearPoints.add(pointsWithSameSlope);
     }
 
@@ -62,14 +69,20 @@ public class Fast {
     }
 
     private static void printPoints(Object[] points) {
+        StringBuilder pointsPath = new StringBuilder();
         for (int i = 0; i < points.length; i++) {
-            StdOut.print(points[i]);
+            pointsPath.append(points[i]);
             if (i < points.length - 1) {
-                StdOut.print(" -> ");
-                ((Point) points[i]).drawTo((Point) points[i + 1]);
+                pointsPath.append(" -> ");
+
             }
         }
-        StdOut.println();
+        String pointsLinkStrRepresentation = points[0] + " " + points[points.length - 1];
+//        if (!drawSet.contains(pointsLinkStrRepresentation)) {
+        ((Point) points[0]).drawTo((Point) points[points.length - 1]);
+        drawSet.add(pointsLinkStrRepresentation);
+//        }
+        StdOut.println(pointsPath.toString());
     }
 
     private static void readFile(String fileName) throws Exception {
@@ -82,15 +95,15 @@ public class Fast {
             stringBuilder.append(ls);
         }
         fileContent = stringBuilder.toString();
+        fileContent = fileContent.replaceAll("\r\n\r\n", "\r\n").replaceAll("\n\n", "\n");
         if (fileContent == null || fileContent.isEmpty()) {
             throw new Exception("Empty file was provided. Please provide file with correct architecture.");
         }
     }
 
-
 //    ===============================reading from UnsatisfiedLinkError functions===========================
 
-    protected static Point[] initiatePointsArray() {
+    private static Point[] initiatePointsArray() {
         int pointsSize = getNumberOfPoints();
         Point[] points = new Point[pointsSize];
         for (int i = 0; i < pointsSize; i++) {
@@ -100,15 +113,16 @@ public class Fast {
     }
 
     private static Point getPoint(int i) {
-        String[] strPointRepresentations = fileContent.split("\r\n");
+        String[] strPointRepresentations = fileContent.split("\n");
         String pointStr = strPointRepresentations[i + 1];
         StringTokenizer numbersTokenizer = new StringTokenizer(pointStr, " ");
-        return new Point(Integer.valueOf(numbersTokenizer.nextToken()), Integer.valueOf(numbersTokenizer.nextToken()));
+        return new Point(Integer.valueOf(numbersTokenizer.nextToken().replaceAll("\\s", "")),
+                Integer.valueOf(numbersTokenizer.nextToken().replaceAll("\\s", "")));
     }
 
     private static int getNumberOfPoints() {
-        String numOfRowsStr = fileContent.substring(0, fileContent.indexOf("\r\n"));
-        return Integer.valueOf(numOfRowsStr);
+        String numOfRowsStr = fileContent.substring(0, fileContent.indexOf("\n"));
+        return Integer.valueOf(numOfRowsStr.replaceAll("\\s", ""));
     }
 
     private static class MyHashSet extends HashSet<Set<Point>> {

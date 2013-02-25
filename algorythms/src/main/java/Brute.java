@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
 import java.util.StringTokenizer;
@@ -31,6 +32,7 @@ public class Brute {
                 }
             }
         }
+
     }
 
     private static void printPoints(Point point1, Point point2, Point point3, Point point4) {
@@ -44,19 +46,21 @@ public class Brute {
     }
 
     private static void printPoints(Point[] points) {
+        StringBuilder pointsPath = new StringBuilder();
         for (int i = 0; i < points.length; i++) {
-            StdOut.print(points[i]);
+            pointsPath.append(points[i]);
             if (i < points.length - 1) {
-                StdOut.print(" -> ");
-                points[i].drawTo(points[i + 1]);
+                pointsPath.append(" -> ");
             }
         }
-        StdOut.println();
+        points[0].drawTo(points[points.length - 1]);
+        if (!pointsPath.toString().trim().isEmpty()) {
+            StdOut.println(pointsPath.toString());
+        }
     }
 
     //    ===============================reading from UnsatisfiedLinkError functions===========================
-
-    protected static Point[] initiatePointsArray() {
+    private static Point[] initiatePointsArray() {
         int pointsSize = getNumberOfPoints();
         Point[] points = new Point[pointsSize];
         for (int i = 0; i < pointsSize; i++) {
@@ -66,10 +70,11 @@ public class Brute {
     }
 
     private static Point getPoint(int i) {
-        String[] strPointRepresentations = fileContent.split("\r\n");
+        String[] strPointRepresentations = fileContent.split("\n");
         String pointStr = strPointRepresentations[i + 1];
         StringTokenizer numbersTokenizer = new StringTokenizer(pointStr, " ");
-        return new Point(Integer.valueOf(numbersTokenizer.nextToken()), Integer.valueOf(numbersTokenizer.nextToken()));
+        return new Point(Integer.valueOf(numbersTokenizer.nextToken().replaceAll("\\s", "")),
+                Integer.valueOf(numbersTokenizer.nextToken().replaceAll("\\s", "")));
     }
 
     private static void readFile(String fileName) throws Exception {
@@ -82,14 +87,18 @@ public class Brute {
             stringBuilder.append(ls);
         }
         fileContent = stringBuilder.toString();
+        fileContent = fileContent.replaceAll("\r\n\r\n", "\r\n").replaceAll("\n\n", "\n");
         if (fileContent == null || fileContent.isEmpty()) {
             throw new Exception("Empty file was provided. Please provide file with correct architecture.");
         }
+//        StdOut.println("=====File content====");
+//        StdOut.println(fileContent);
+//        StdOut.println("=====================");
     }
 
     private static int getNumberOfPoints() {
-        String numOfRowsStr = fileContent.substring(0, fileContent.indexOf("\r\n"));
-        return Integer.valueOf(numOfRowsStr);
+        String numOfRowsStr = fileContent.substring(0, fileContent.indexOf("\n"));
+        return Integer.valueOf(numOfRowsStr.replaceAll("\\s", ""));
     }
 
 
