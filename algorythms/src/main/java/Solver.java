@@ -1,12 +1,10 @@
-package com.artigile.coursera.algorythms.week4;
 
 import java.util.*;
 
 /**
- * @author IoaN, 3/10/13 1:40 PM
+ * @author IoaN, 3/10/13 3:52 PM
  */
 public class Solver {
-    private static Random random = new Random(System.currentTimeMillis());
     private boolean solvable = true;
     private SearchNode solution;
 
@@ -31,65 +29,26 @@ public class Solver {
 
     // solve a slider puzzle (given below)
     public static void main(String[] args) {
-        Board initial = generateRandomBoard();
+        // create initial board from file
+        In in = new In(args[0]);
+        int N = in.readInt();
+        int[][] blocks = new int[N][N];
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                blocks[i][j] = in.readInt();
+        Board initial = new Board(blocks);
+
         // solve the puzzle
         Solver solver = new Solver(initial);
+
         // print solution to standard output
         if (!solver.isSolvable())
-            System.out.println("No solution possible");
+            StdOut.println("No solution possible");
         else {
-            System.out.println("Minimum number of moves = " + solver.moves());
+            StdOut.println("Minimum number of moves = " + solver.moves());
             for (Board board : solver.solution())
-                System.out.println(board);
+                StdOut.println(board);
         }
-    }
-
-    private static Board generateRandomBoard() {
-        int size = 3;//(int) (Math.random() * 3);
-        if (size == 0) {
-            return null;
-        }
-        int[][] blocks = new int[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                blocks[i][j] = i * size + j;
-            }
-            shuffle(blocks[i]);
-        }
-        shuffle(blocks, 0, blocks.length - 1);
-        Board board = new Board(blocks);
-        return board;
-    }
-
-    /**
-     * Rearrange the elements of the subarray a[lo..hi] in random order.
-     */
-    public static void shuffle(Object[] a, int lo, int hi) {
-        if (lo < 0 || lo > hi || hi >= a.length)
-            throw new RuntimeException("Illegal subarray range");
-        for (int i = lo; i <= hi; i++) {
-            int r = i + uniform(hi - i + 1);     // between i and hi
-            Object temp = a[i];
-            a[i] = a[r];
-            a[r] = temp;
-        }
-    }
-
-    public static void shuffle(int[] a) {
-        int N = a.length;
-        for (int i = 0; i < N; i++) {
-            int r = i + uniform(N - i);     // between i and N-1
-            int temp = a[i];
-            a[i] = a[r];
-            a[r] = temp;
-        }
-    }
-
-    /**
-     * Return an integer uniformly between 0 (inclusive) and N (exclusive).
-     */
-    public static int uniform(int N) {
-        return random.nextInt(N);
     }
 
     // is the initial board solvable?

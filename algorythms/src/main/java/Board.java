@@ -1,10 +1,8 @@
-package com.artigile.coursera.algorythms.week4;
-
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @author IoaN, 3/9/13 6:18 PM
+ * @author IoaN, 3/10/13 3:51 PM
  */
 public class Board {
 
