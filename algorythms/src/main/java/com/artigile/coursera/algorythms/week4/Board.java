@@ -9,7 +9,6 @@ import java.util.Set;
 public class Board {
 
     private int[][] blocks;
-    private int moves = 0;
     private int x, y;
     private int EMPTY_CELL_NUM = 0;
 
@@ -47,7 +46,7 @@ public class Board {
                 }
             }
         }
-        return distance + moves;
+        return distance ;
     }
 
     // sum of Manhattan distances between blocks and goal
@@ -60,12 +59,12 @@ public class Board {
                 }
             }
         }
-        return distance + moves;
+        return distance ;
     }
 
     // is this board the goal board?
     public boolean isGoal() {
-        return manhattan() == moves && hamming() == moves;
+        return manhattan() == 0 && hamming() == 0;
     }
 
     // a board obtained by exchanging two adjacent blocks in the same row
@@ -104,22 +103,18 @@ public class Board {
         Set<Board> neighbours = new HashSet<Board>();
         if (x > 0) {
             Board newBoard = new Board(moveLeft(x, y));
-            newBoard.moves = moves + 1;
             neighbours.add(newBoard);
         }
         if (x < blocks.length - 1) {
             Board newBoard = new Board(moveRight(x, y));
-            newBoard.moves = moves + 1;
             neighbours.add(newBoard);
         }
         if (y < blocks.length - 1) {
             Board newBoard = new Board(moveDown(x, y));
-            newBoard.moves = moves + 1;
             neighbours.add(newBoard);
         }
         if (y > 0) {
             Board newBoard = new Board(moveUp(x, y));
-            newBoard.moves = moves + 1;
             neighbours.add(newBoard);
         }
         return neighbours;

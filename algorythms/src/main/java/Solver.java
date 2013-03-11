@@ -6,28 +6,32 @@ import java.util.*;
  */
 public class Solver {
     private boolean solvable = true;
-    private SearchNode solution;
+    private SearchNode solutionNode;
 
-    // find a solution to the initial board (using the A* algorithm)
+    /**
+     * find a solutionNode to the initial board (using the A* algorithm)
+     */
     public Solver(Board initial) {
         MinPQ<SearchNode> solutionQueue = new MinPQ<SearchNode>();
         MinPQ<SearchNode> twinSolutionQueue = new MinPQ<SearchNode>();
         if (initial.isGoal()) {
-            solution = new SearchNode(initial, null);
+            solutionNode = new SearchNode(initial, 0, null);
             return;
         }
         try {
-            SearchNode searchNode = new SearchNode(initial, null);
-            SearchNode twinSearchNode = new SearchNode(initial.twin(), null);
+            SearchNode searchNode = new SearchNode(initial, 0, null);
+            SearchNode twinSearchNode = new SearchNode(initial.twin(), 0, null);
             solutionQueue.insert(searchNode);
             twinSolutionQueue.insert(twinSearchNode);
-            solution = getSolution(solutionQueue, twinSolutionQueue, new HashSet<String>(), new HashSet<String>());
+            solutionNode = getSolution(solutionQueue, twinSolutionQueue, new HashSet<String>(), new HashSet<String>());
         } catch (Exception e) {
             solvable = false;
         }
     }
 
-    // solve a slider puzzle (given below)
+    /**
+     * solve a slider puzzle (given below)
+     */
     public static void main(String[] args) {
         // create initial board from file
         In in = new In(args[0]);
@@ -41,7 +45,7 @@ public class Solver {
         // solve the puzzle
         Solver solver = new Solver(initial);
 
-        // print solution to standard output
+        // print solutionNode to standard output
         if (!solver.isSolvable())
             StdOut.println("No solution possible");
         else {
@@ -51,31 +55,33 @@ public class Solver {
         }
     }
 
-    // is the initial board solvable?
+    /**
+     * is the initial board solvable?
+     */
     public boolean isSolvable() {
         return solvable;
     }
 
     /**
-     * min number of moves to solve initial board; -1 if no solution
-     * since board is not allowed to return total moves -  return here hamming which is equal to total moves because
-     * when all elements are th the right place then the hamming sum comsists from moves only.
+     * min number of moves to solve initial board; -1 if no solutionNode
      */
     public int moves() {
         if (!isSolvable()) {
             return -1;
         }
-        return solution.board.hamming();
+        return solutionNode.moves;
     }
 
-    // sequence of boards in a shortest solution; null if no solution
+    /**
+     * sequence of boards in a shortest solutionNode; null if no solutionNode
+     */
     public Iterable<Board> solution() {
         if (!isSolvable()) {
             return null;
         }
         List<Board> solutionSteps = new LinkedList<Board>();
-        if (solution != null) {
-            SearchNode iterableSolution = solution;
+        if (solutionNode != null) {
+            SearchNode iterableSolution = solutionNode;
             while (iterableSolution.prevSearchNode != null) {
                 solutionSteps.add(iterableSolution.board);
                 iterableSolution = iterableSolution.prevSearchNode;
@@ -83,7 +89,7 @@ public class Solver {
             solutionSteps.add(iterableSolution.board);
         }
         Collections.reverse(solutionSteps);
-        return solutionSteps;
+        return new LinkedHashSet<Board>(solutionSteps);
     }
 
     private SearchNode getSolution(MinPQ<SearchNode> solutionQueue, MinPQ<SearchNode> twinSolutionQueue, Set<String> existingBoards, Set<String> twinBoards) throws Exception {
@@ -91,17 +97,17 @@ public class Solver {
             SearchNode minDeleted = solutionQueue.delMin();
             for (Board boardNeibourhood : minDeleted.board.neighbors()) {
                 if (existingBoards.add(boardNeibourhood.toString())) {
-                    SearchNode newSearchnode = new SearchNode(boardNeibourhood, minDeleted);
-                    solutionQueue.insert(newSearchnode);
+                    SearchNode newSearchNode = new SearchNode(boardNeibourhood, minDeleted.moves + 1, minDeleted);
+                    solutionQueue.insert(newSearchNode);
                     if (boardNeibourhood.isGoal()) {
-                        return newSearchnode;
+                        return newSearchNode;
                     }
                 }
             }
             SearchNode twinMinDeleted = twinSolutionQueue.delMin();
             for (Board boardNeibourhood : twinMinDeleted.board.neighbors()) {
                 if (twinBoards.add(boardNeibourhood.toString())) {
-                    SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted);
+                    SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted.moves + 1, twinMinDeleted);
                     twinSolutionQueue.insert(twinNewSearchNode);
                     if (boardNeibourhood.isGoal()) {
                         throw new Exception("solution does not exist");
@@ -112,12 +118,13 @@ public class Solver {
     }
 
     private class SearchNode implements Comparable<SearchNode> {
-
         private Board board;
         private SearchNode prevSearchNode;
+        private int moves = 0;
 
-        public SearchNode(Board board, SearchNode prevSearchNode) {
+        public SearchNode(Board board, int moves, SearchNode prevSearchNode) {
             this.board = board;
+            this.moves = moves;
             this.prevSearchNode = prevSearchNode;
         }
 
@@ -126,7 +133,7 @@ public class Solver {
             if (o == null) {
                 return -1;
             }
-            return board.manhattan() - o.board.manhattan();
+            return board.manhattan() + moves - o.board.manhattan() - o.moves;
         }
     }
 

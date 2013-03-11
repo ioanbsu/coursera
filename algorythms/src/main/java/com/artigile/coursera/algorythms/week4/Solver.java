@@ -15,12 +15,12 @@ public class Solver {
         MinPQ<SearchNode> solutionQueue = new MinPQ<SearchNode>();
         MinPQ<SearchNode> twinSolutionQueue = new MinPQ<SearchNode>();
         if (initial.isGoal()) {
-            solution = new SearchNode(initial, null);
+            solution = new SearchNode(initial, 0, null);
             return;
         }
         try {
-            SearchNode searchNode = new SearchNode(initial, null);
-            SearchNode twinSearchNode = new SearchNode(initial.twin(), null);
+            SearchNode searchNode = new SearchNode(initial, 0, null);
+            SearchNode twinSearchNode = new SearchNode(initial.twin(), 0, null);
             solutionQueue.insert(searchNode);
             twinSolutionQueue.insert(twinSearchNode);
             solution = getSolution(solutionQueue, twinSolutionQueue, new HashSet<String>(), new HashSet<String>());
@@ -132,7 +132,7 @@ public class Solver {
             SearchNode minDeleted = solutionQueue.delMin();
             for (Board boardNeibourhood : minDeleted.board.neighbors()) {
                 if (existingBoards.add(boardNeibourhood.toString())) {
-                    SearchNode newSearchnode = new SearchNode(boardNeibourhood, minDeleted);
+                    SearchNode newSearchnode = new SearchNode(boardNeibourhood, minDeleted.moves, minDeleted);
                     solutionQueue.insert(newSearchnode);
                     if (boardNeibourhood.isGoal()) {
                         return newSearchnode;
@@ -142,7 +142,7 @@ public class Solver {
             SearchNode twinMinDeleted = twinSolutionQueue.delMin();
             for (Board boardNeibourhood : twinMinDeleted.board.neighbors()) {
                 if (twinBoards.add(boardNeibourhood.toString())) {
-                    SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted);
+                    SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted.moves, twinMinDeleted);
                     twinSolutionQueue.insert(twinNewSearchNode);
                     if (boardNeibourhood.isGoal()) {
                         throw new Exception("solution does not exist");
@@ -156,9 +156,11 @@ public class Solver {
 
         private Board board;
         private SearchNode prevSearchNode;
+        private int moves = 0;
 
-        public SearchNode(Board board, SearchNode prevSearchNode) {
+        public SearchNode(Board board, int moves, SearchNode prevSearchNode) {
             this.board = board;
+            this.moves = moves;
             this.prevSearchNode = prevSearchNode;
         }
 
@@ -167,7 +169,7 @@ public class Solver {
             if (o == null) {
                 return -1;
             }
-            return board.manhattan() - o.board.manhattan();
+            return board.manhattan() + moves - o.board.manhattan() - o.moves;
         }
     }
 
