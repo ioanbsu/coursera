@@ -23,7 +23,7 @@ public class Solver {
             SearchNode twinSearchNode = new SearchNode(initial.twin(), 0, null);
             solutionQueue.insert(searchNode);
             twinSolutionQueue.insert(twinSearchNode);
-            solution = getSolution(solutionQueue, twinSolutionQueue, new HashSet<String>(), new HashSet<String>());
+            solution = getSolution(solutionQueue, twinSolutionQueue, new HashSet<Board>(), new HashSet<Board>());
         } catch (Exception e) {
             solvable = false;
         }
@@ -127,11 +127,11 @@ public class Solver {
         return solutionSteps;
     }
 
-    private SearchNode getSolution(MinPQ<SearchNode> solutionQueue, MinPQ<SearchNode> twinSolutionQueue, Set<String> existingBoards, Set<String> twinBoards) throws Exception {
+    private SearchNode getSolution(MinPQ<SearchNode> solutionQueue, MinPQ<SearchNode> twinSolutionQueue, Set<Board> existingBoards, Set<Board> twinBoards) throws Exception {
         while (true) {
             SearchNode minDeleted = solutionQueue.delMin();
             for (Board boardNeibourhood : minDeleted.board.neighbors()) {
-                if (existingBoards.add(boardNeibourhood.toString())) {
+                if (existingBoards.add(boardNeibourhood)) {
                     SearchNode newSearchnode = new SearchNode(boardNeibourhood, minDeleted.moves, minDeleted);
                     solutionQueue.insert(newSearchnode);
                     if (boardNeibourhood.isGoal()) {
@@ -141,7 +141,7 @@ public class Solver {
             }
             SearchNode twinMinDeleted = twinSolutionQueue.delMin();
             for (Board boardNeibourhood : twinMinDeleted.board.neighbors()) {
-                if (twinBoards.add(boardNeibourhood.toString())) {
+                if (twinBoards.add(boardNeibourhood)) {
                     SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted.moves, twinMinDeleted);
                     twinSolutionQueue.insert(twinNewSearchNode);
                     if (boardNeibourhood.isGoal()) {

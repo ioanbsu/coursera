@@ -1,5 +1,8 @@
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author IoaN, 3/10/13 3:52 PM
@@ -23,7 +26,7 @@ public class Solver {
             SearchNode twinSearchNode = new SearchNode(initial.twin(), 0, null);
             solutionQueue.insert(searchNode);
             twinSolutionQueue.insert(twinSearchNode);
-            solutionNode = getSolution(solutionQueue, twinSolutionQueue, new HashSet<String>(), new HashSet<String>());
+            solutionNode = getSolution(solutionQueue, twinSolutionQueue);
         } catch (Exception e) {
             solvable = false;
         }
@@ -92,32 +95,33 @@ public class Solver {
         return new LinkedHashSet<Board>(solutionSteps);
     }
 
-    private SearchNode getSolution(MinPQ<SearchNode> solutionQueue, MinPQ<SearchNode> twinSolutionQueue, Set<String> existingBoards, Set<String> twinBoards) throws Exception {
+    private SearchNode getSolution(MinPQ<SearchNode> solutionQueue, MinPQ<SearchNode> twinSolutionQueue) throws Exception {
         while (true) {
             SearchNode minDeleted = solutionQueue.delMin();
+            if (minDeleted.board.isGoal()) {
+                return minDeleted;
+            }
             for (Board boardNeibourhood : minDeleted.board.neighbors()) {
-                if (existingBoards.add(boardNeibourhood.toString())) {
+                if (minDeleted.prevSearchNode == null || !boardNeibourhood.equals(minDeleted.prevSearchNode.board)) {
                     SearchNode newSearchNode = new SearchNode(boardNeibourhood, minDeleted.moves + 1, minDeleted);
                     solutionQueue.insert(newSearchNode);
-                    if (boardNeibourhood.isGoal()) {
-                        return newSearchNode;
-                    }
                 }
             }
             SearchNode twinMinDeleted = twinSolutionQueue.delMin();
+            if (twinMinDeleted.board.isGoal()) {
+                throw new Exception("solution does not exist");
+
+            }
             for (Board boardNeibourhood : twinMinDeleted.board.neighbors()) {
-                if (twinBoards.add(boardNeibourhood.toString())) {
+                if (twinMinDeleted.prevSearchNode == null || !boardNeibourhood.equals(twinMinDeleted.prevSearchNode.board)) {
                     SearchNode twinNewSearchNode = new SearchNode(boardNeibourhood, twinMinDeleted.moves + 1, twinMinDeleted);
                     twinSolutionQueue.insert(twinNewSearchNode);
-                    if (boardNeibourhood.isGoal()) {
-                        throw new Exception("solution does not exist");
-                    }
                 }
             }
         }
     }
 
-    private class SearchNode implements Comparable<SearchNode> {
+    private static class SearchNode implements Comparable<SearchNode> {
         private Board board;
         private SearchNode prevSearchNode;
         private int moves = 0;
@@ -134,6 +138,11 @@ public class Solver {
                 return -1;
             }
             return board.manhattan() + moves - o.board.manhattan() - o.moves;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return compareTo((SearchNode) obj)==0;
         }
     }
 

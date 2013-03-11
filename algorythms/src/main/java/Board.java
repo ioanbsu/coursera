@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,7 +45,7 @@ public class Board {
                 }
             }
         }
-        return distance ;
+        return distance;
     }
 
     // sum of Manhattan distances between blocks and goal
@@ -57,7 +58,7 @@ public class Board {
                 }
             }
         }
-        return distance ;
+        return distance;
     }
 
     // is this board the goal board?
@@ -91,10 +92,12 @@ public class Board {
             return true;
         }
         if (anObject instanceof Board) {
-            return toString().equals(anObject.toString());
+            return Arrays.deepEquals(blocks,((Board)anObject).blocks);
         }
         return false;
     }
+
+
 
     // all neighboring boards
     public Iterable<Board> neighbors() {

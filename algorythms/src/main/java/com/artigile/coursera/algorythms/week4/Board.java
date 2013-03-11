@@ -93,9 +93,16 @@ public class Board {
             return true;
         }
         if (anObject instanceof Board) {
-            return toString().equals(anObject.toString());
+            Board thatBoard=(Board)anObject;
+            for(int i=0;i<blocks.length;i++){
+                for(int j=0;j<blocks.length;j++){
+                    if(blocks[i][j]!=thatBoard.blocks[i][j]){
+                        return false;
+                    }
+                }
+            }
         }
-        return false;
+        return true;
     }
 
     // all neighboring boards
