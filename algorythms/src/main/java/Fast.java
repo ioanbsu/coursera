@@ -35,7 +35,7 @@ public class Fast {
                     pointsWithSameSlope = new TreeSet<Point>();
                 }
             }
-            pointsWithSameSlope.add(copiedArray[copiedArray.length-1]);
+            pointsWithSameSlope.add(copiedArray[copiedArray.length - 1]);
             addPointToList(points, listOfColinearPoints, i, pointsWithSameSlope);
         }
         for (Set<Point> listOfColinearPoint : listOfColinearPoints) {
@@ -104,18 +104,4 @@ public class Fast {
         String numOfRowsStr = fileContent.substring(0, fileContent.indexOf("\n"));
         return Integer.valueOf(numOfRowsStr.replaceAll("\\s", ""));
     }
-
-    private static class MyHashSet extends HashSet<Set<Point>> {
-        @Override
-        public boolean equals(Object o) {
-            Set<Point> thatPoint = (Set<Point>) o;
-            return thatPoint != null && !thatPoint.isEmpty() && !isEmpty() && thatPoint.iterator().next() == iterator().next();
-        }
-
-        @Override
-        public int hashCode() {
-            return iterator().next().hashCode();
-        }
-    }
-
 }
