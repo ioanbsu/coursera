@@ -39,18 +39,18 @@ public class KdTree {
      * @param pointToInsert point to add to the set
      */
     public void insert(Point2D pointToInsert) {
-        size++;
         if (rootNode == null) {
             rootNode = new Node();
             rootNode.point = pointToInsert;
             rootNode.rect = new RectHV(0, 0, 1, 1);
+            size++;
+            return;
+        }
+        if (contains(pointToInsert)) {
             return;
         }
         Node foundParentNode = searchChildBranch(pointToInsert);
-        if (foundParentNode.point.equals(pointToInsert)) {
-            size--;
-            return;
-        }
+        size++;
         Node newNode = new Node();
         newNode.point = pointToInsert;
         if (foundParentNode.nodeType == NodeType.VERTICAL) {
@@ -171,10 +171,10 @@ public class KdTree {
         if (rect.contains(nodeToAnalyze.point)) {
             intersectedNodes.add(nodeToAnalyze.point);
         }
-        if(nodeToAnalyze.rightChild!=null&&nodeToAnalyze.rightChild.rect.intersects(rect)){
+        if (nodeToAnalyze.rightChild != null && nodeToAnalyze.rightChild.rect.intersects(rect)) {
             searchIntersected(nodeToAnalyze.rightChild, intersectedNodes, rect);
         }
-        if(nodeToAnalyze.leftChild!=null&&nodeToAnalyze.leftChild.rect.intersects(rect)){
+        if (nodeToAnalyze.leftChild != null && nodeToAnalyze.leftChild.rect.intersects(rect)) {
             searchIntersected(nodeToAnalyze.leftChild, intersectedNodes, rect);
         }
 

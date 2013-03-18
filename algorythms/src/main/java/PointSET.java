@@ -69,7 +69,7 @@ public class PointSET {
     public Iterable<Point2D> range(RectHV rect) {
         TreeSet<Point2D> pointsInRect = new TreeSet<Point2D>();
         for (Point2D point : points) {
-            if (point.x() > rect.xmin() && point.x() < rect.xmax() && point.y() > rect.ymin() && point.y() < rect.ymax()) {
+            if (rect.contains(point)) {
                 pointsInRect.add(point);
             }
         }
