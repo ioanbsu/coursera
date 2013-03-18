@@ -8,7 +8,7 @@ public class TestKdTrees {
     public static void main(String[] args) {
         File folder = new File(ClassLoader.getSystemResource("kdtree").getFile());
         for (File file : folder.listFiles()) {
-            if (!file.getName().endsWith("vertical7.txt")) {
+            if (!file.getName().endsWith("input10K.txt")) {
                 continue;
             }
 
@@ -17,8 +17,24 @@ public class TestKdTrees {
             visualizeArea("kdtree/" + file.getName());
 //            visualizeClosestNeibourhood("kdtree/" + file.getName());
 //            visualizeKdTree();
+//            testKdTreeData("kdtree/" + file.getName());
             System.out.println(stopwatch.elapsedTime());
         }
+    }
+
+    private static void testKdTreeData(String filename) {
+        In in = new In(filename);
+        // initialize the data structures with N points from standard input
+        KdTree kdtree = new KdTree();
+        while (!in.isEmpty()) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            Point2D p = new Point2D(x, y);
+            kdtree.insert(p);
+        }
+        kdtree.range(new RectHV(0.40955,0.2398, 0.45598, 0.97129));
+
+
     }
 
     private static void visualizeArea(String filename) {
@@ -38,11 +54,11 @@ public class TestKdTrees {
             kdtree.insert(p);
             brute.insert(p);
         }
-        System.out.println("Trees empty");
+        System.out.println(kdtree.contains(new Point2D(0.206107, 0.095492)));
         System.out.println("KD: " + kdtree.isEmpty());
         System.out.println("Brute: " + brute.isEmpty());
-        System.out.println("KD size:" +kdtree.size());
-        System.out.println("Brute size:" +kdtree.size());
+        System.out.println("KD size:" + kdtree.size());
+        System.out.println("Brute size:" + kdtree.size());
 
         double x0 = 0.0, y0 = 0.0;      // initial endpoint of rectangle
         double x1 = 0.0, y1 = 0.0;      // current location of mouse

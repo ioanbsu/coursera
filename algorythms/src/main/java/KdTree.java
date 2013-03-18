@@ -39,6 +39,7 @@ public class KdTree {
      * @param pointToInsert point to add to the set
      */
     public void insert(Point2D pointToInsert) {
+        size++;
         if (rootNode == null) {
             rootNode = new Node();
             rootNode.point = pointToInsert;
@@ -47,6 +48,7 @@ public class KdTree {
         }
         Node foundParentNode = searchChildBranch(pointToInsert);
         if (foundParentNode.point.equals(pointToInsert)) {
+            size--;
             return;
         }
         Node newNode = new Node();
@@ -71,8 +73,6 @@ public class KdTree {
             }
             newNode.nodeType = NodeType.VERTICAL;
         }
-        size++;
-
     }
 
     /**
@@ -100,9 +100,8 @@ public class KdTree {
      * @return points that are inside rect
      */
     public Iterable<Point2D> range(RectHV rect) {
-        Node nodeToSearch = rootNode;
         TreeSet<Point2D> intersectedNodes = new TreeSet<Point2D>();
-        searchIntersected(nodeToSearch, intersectedNodes, rect);
+        searchIntersected(rootNode, intersectedNodes, rect);
         return intersectedNodes;
     }
 
@@ -115,8 +114,8 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         Node leftBranch = rootNode.leftChild;
         Node rightBranch = rootNode.rightChild;
-        Point2D nearestPoint2D1 = findNeareast(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-        Point2D nearestPoint2D2 = findNeareast(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
+        Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
+        Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
         if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
             return nearestPoint2D2;
         } else {
@@ -124,7 +123,7 @@ public class KdTree {
         }
     }
 
-    private Point2D findNeareast(Node nodeToSearch, Point2D nearestPoint, double nearestDistance, Point2D queryPoint) {
+    private Point2D findNearest(Node nodeToSearch, Point2D nearestPoint, double nearestDistance, Point2D queryPoint) {
         if (nodeToSearch == null) {
             return nearestPoint;
         }
@@ -139,17 +138,17 @@ public class KdTree {
         Point2D nearestPoint2 = nearestPoint;
         if (goLeftFirst) {
             if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint2 = findNeareast(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
+                nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
             }
             if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint = findNeareast(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
+                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
             }
         } else {
             if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint = findNeareast(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
+                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
             }
             if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint2 = findNeareast(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
+                nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
             }
         }
 
@@ -169,30 +168,22 @@ public class KdTree {
     }
 
     private void searchIntersected(Node nodeToAnalyze, TreeSet<Point2D> intersectedNodes, RectHV rect) {
-        if (nodeToAnalyze == null) {
-            return;
-        }
-        if (nodeToAnalyze.nodeType == NodeType.VERTICAL) {
-            if (nodeToAnalyze.point.x() < rect.xmax()) {
-                searchIntersected(nodeToAnalyze.rightChild, intersectedNodes, rect);
-            }
-            if (nodeToAnalyze.point.x() > rect.xmin()) {
-                searchIntersected(nodeToAnalyze.leftChild, intersectedNodes, rect);
-            }
-        } else if (nodeToAnalyze.nodeType == NodeType.HORIZONTAL) {
-            if (nodeToAnalyze.point.y() < rect.ymax()) {
-                searchIntersected(nodeToAnalyze.rightChild, intersectedNodes, rect);
-            }
-            if (nodeToAnalyze.point.y() > rect.ymin()) {
-                searchIntersected(nodeToAnalyze.leftChild, intersectedNodes, rect);
-            }
-        }
         if (rect.contains(nodeToAnalyze.point)) {
             intersectedNodes.add(nodeToAnalyze.point);
         }
+        if(nodeToAnalyze.rightChild!=null&&nodeToAnalyze.rightChild.rect.intersects(rect)){
+            searchIntersected(nodeToAnalyze.rightChild, intersectedNodes, rect);
+        }
+        if(nodeToAnalyze.leftChild!=null&&nodeToAnalyze.leftChild.rect.intersects(rect)){
+            searchIntersected(nodeToAnalyze.leftChild, intersectedNodes, rect);
+        }
+
     }
 
     private Node searchChildBranch(Point2D searchPoint) {
+        if (rootNode != null && rootNode.point.equals(searchPoint)) {
+            return rootNode;
+        }
         Node searchNode = rootNode;
         while (searchNode != null) {
             Node nextBranch = null;
@@ -225,7 +216,6 @@ public class KdTree {
             drawAll(rootNode.leftChild);
             drawAll(rootNode.rightChild);
         }
-        return;
     }
 
 
