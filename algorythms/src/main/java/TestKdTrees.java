@@ -8,7 +8,7 @@ public class TestKdTrees {
     public static void main(String[] args) {
         File folder = new File(ClassLoader.getSystemResource("kdtree").getFile());
         for (File file : folder.listFiles()) {
-            if (!file.getName().endsWith("circle100.txt")) {
+            if (!file.getName().endsWith("input100K.txt")) {
                 continue;
             }
 

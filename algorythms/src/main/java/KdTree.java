@@ -163,6 +163,7 @@ public class KdTree {
             }
             calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nearestPoint);
             if (calculatedNearestDistanceSquared <= nearestDistance) {
+                nearestDistance = calculatedNearestDistanceSquared;
             }
             if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
                 nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
@@ -185,6 +186,9 @@ public class KdTree {
     }
 
     private void searchIntersected(Node nodeToAnalyze, TreeSet<Point2D> intersectedNodes, RectHV rect) {
+        if(nodeToAnalyze==null){
+            return;
+        }
         if (rect.contains(nodeToAnalyze.point)) {
             intersectedNodes.add(nodeToAnalyze.point);
         }
