@@ -86,6 +86,9 @@ public class KdTree {
      * @return true if contains, otherwise returns false.
      */
     public boolean contains(Point2D p) {
+        if(isEmpty()){
+            return false;
+        }
         try {
             searchChildBranch(p);
             return true;
@@ -121,6 +124,9 @@ public class KdTree {
      */
     public Point2D nearest(Point2D p) {
 //        Stopwatch stopwatch = new Stopwatch();
+        if(isEmpty()){
+            return null;
+        }
         Node leftBranch = rootNode.leftChild;
         Node rightBranch = rootNode.rightChild;
         Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
