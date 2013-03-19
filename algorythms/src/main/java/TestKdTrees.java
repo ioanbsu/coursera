@@ -8,14 +8,14 @@ public class TestKdTrees {
     public static void main(String[] args) {
         File folder = new File(ClassLoader.getSystemResource("kdtree").getFile());
         for (File file : folder.listFiles()) {
-            if (!file.getName().endsWith("input10K.txt")) {
+            if (!file.getName().endsWith("circle100.txt")) {
                 continue;
             }
 
             System.out.println("================" + file.getName() + "================");
             Stopwatch stopwatch = new Stopwatch();
-            visualizeArea("kdtree/" + file.getName());
-//            visualizeClosestNeibourhood("kdtree/" + file.getName());
+//            visualizeArea("kdtree/" + file.getName());
+            visualizeClosestNeibourhood("kdtree/" + file.getName());
 //            visualizeKdTree();
 //            testKdTreeData("kdtree/" + file.getName());
             System.out.println(stopwatch.elapsedTime());

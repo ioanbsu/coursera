@@ -39,6 +39,9 @@ public class KdTree {
      * @param pointToInsert point to add to the set
      */
     public void insert(Point2D pointToInsert) {
+        if(pointToInsert==null){
+            return;
+        }
         if (rootNode == null) {
             rootNode = new Node();
             rootNode.point = pointToInsert;
@@ -46,32 +49,33 @@ public class KdTree {
             size++;
             return;
         }
-        if (contains(pointToInsert)) {
-            return;
-        }
-        Node foundParentNode = searchChildBranch(pointToInsert);
-        size++;
-        Node newNode = new Node();
-        newNode.point = pointToInsert;
-        if (foundParentNode.nodeType == NodeType.VERTICAL) {
-            if (pointToInsert.x() < foundParentNode.point.x()) {
-                newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.rect.ymin(), foundParentNode.point.x(), foundParentNode.rect.ymax());
-                foundParentNode.leftChild = newNode;
-            } else {
-                newNode.rect = new RectHV(foundParentNode.point.x(), foundParentNode.rect.ymin(), foundParentNode.rect.xmax(), foundParentNode.rect.ymax());
-                foundParentNode.rightChild = newNode;
+        try {
+            searchChildBranch(pointToInsert);
+        } catch (ElementDoesNotExistException e) {
+            Node foundParentNode = e.foundDeepestNode;
+            size++;
+            Node newNode = new Node();
+            newNode.point = pointToInsert;
+            if (foundParentNode.nodeType == NodeType.VERTICAL) {
+                if (pointToInsert.x() < foundParentNode.point.x()) {
+                    newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.rect.ymin(), foundParentNode.point.x(), foundParentNode.rect.ymax());
+                    foundParentNode.leftChild = newNode;
+                } else {
+                    newNode.rect = new RectHV(foundParentNode.point.x(), foundParentNode.rect.ymin(), foundParentNode.rect.xmax(), foundParentNode.rect.ymax());
+                    foundParentNode.rightChild = newNode;
+                }
+                newNode.nodeType = NodeType.HORIZONTAL;
             }
-            newNode.nodeType = NodeType.HORIZONTAL;
-        }
-        if (foundParentNode.nodeType == NodeType.HORIZONTAL) {
-            if (pointToInsert.y() < foundParentNode.point.y()) {
-                newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.rect.ymin(), foundParentNode.rect.xmax(), foundParentNode.point.y());
-                foundParentNode.leftChild = newNode;
-            } else {
-                newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.point.y(), foundParentNode.rect.xmax(), foundParentNode.rect.ymax());
-                foundParentNode.rightChild = newNode;
+            if (foundParentNode.nodeType == NodeType.HORIZONTAL) {
+                if (pointToInsert.y() < foundParentNode.point.y()) {
+                    newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.rect.ymin(), foundParentNode.rect.xmax(), foundParentNode.point.y());
+                    foundParentNode.leftChild = newNode;
+                } else {
+                    newNode.rect = new RectHV(foundParentNode.rect.xmin(), foundParentNode.point.y(), foundParentNode.rect.xmax(), foundParentNode.rect.ymax());
+                    foundParentNode.rightChild = newNode;
+                }
+                newNode.nodeType = NodeType.VERTICAL;
             }
-            newNode.nodeType = NodeType.VERTICAL;
         }
     }
 
@@ -82,8 +86,12 @@ public class KdTree {
      * @return true if contains, otherwise returns false.
      */
     public boolean contains(Point2D p) {
-        Node foundNode = searchChildBranch(p);
-        return foundNode.point.equals(p);
+        try {
+            searchChildBranch(p);
+            return true;
+        } catch (ElementDoesNotExistException e) {
+            return false;
+        }
     }
 
     /**
@@ -112,10 +120,12 @@ public class KdTree {
      * @return returns nearest neibhour.
      */
     public Point2D nearest(Point2D p) {
+//        Stopwatch stopwatch = new Stopwatch();
         Node leftBranch = rootNode.leftChild;
         Node rightBranch = rootNode.rightChild;
         Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
         Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
+//        System.out.println(stopwatch.elapsedTime());
         if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
             return nearestPoint2D2;
         } else {
@@ -140,12 +150,19 @@ public class KdTree {
             if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
                 nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
             }
+            calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nearestPoint2);
+            if (calculatedNearestDistanceSquared <= nearestDistance) {
+                nearestDistance = calculatedNearestDistanceSquared;
+            }
             if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
                 nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
             }
         } else {
             if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
                 nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
+            }
+            calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nearestPoint);
+            if (calculatedNearestDistanceSquared <= nearestDistance) {
             }
             if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
                 nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
@@ -180,13 +197,13 @@ public class KdTree {
 
     }
 
-    private Node searchChildBranch(Point2D searchPoint) {
-        if (rootNode != null && rootNode.point.equals(searchPoint)) {
-            return rootNode;
-        }
+    private Node searchChildBranch(Point2D searchPoint) throws ElementDoesNotExistException {
         Node searchNode = rootNode;
         while (searchNode != null) {
             Node nextBranch = null;
+            if (searchNode.point.equals(searchPoint)) {
+                return searchNode;
+            }
             if (searchNode.nodeType == NodeType.VERTICAL) {
                 if (searchPoint.x() < searchNode.point.x()) {
                     nextBranch = searchNode.leftChild;
@@ -202,7 +219,7 @@ public class KdTree {
                 }
             }
             if (nextBranch == null) {
-                return searchNode;
+                throw new ElementDoesNotExistException(searchNode);
             } else {
                 searchNode = nextBranch;
             }
@@ -230,6 +247,14 @@ public class KdTree {
         private Node leftChild;
         private Node rightChild;
 
+    }
+
+    private class ElementDoesNotExistException extends Exception {
+        private Node foundDeepestNode;
+
+        private ElementDoesNotExistException(Node foundDeepestNode) {
+            this.foundDeepestNode = foundDeepestNode;
+        }
     }
 
 }
