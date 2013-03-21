@@ -8,7 +8,7 @@ public class TestKdTrees {
     public static void main(String[] args) {
         File folder = new File(ClassLoader.getSystemResource("kdtree").getFile());
         for (File file : folder.listFiles()) {
-            if (!file.getName().endsWith("input100K.txt")) {
+            if (!file.getName().endsWith("circle100.txt")) {
                 continue;
             }
 
@@ -143,7 +143,7 @@ public class TestKdTrees {
     private static void visualizeClosestNeibourhood(String fileName) {
         In in = new In(fileName);
 
-        StdDraw.show(0);
+//        StdDraw.show(0);
 
         // initialize the two data structures with point from standard input
         PointSET brute = new PointSET();
@@ -156,6 +156,10 @@ public class TestKdTrees {
             brute.insert(p);
         }
 
+    /*    for(int i=0;i<25000;i++){
+            Point2D query = new Point2D(Math.random(),Math.random());
+            kdtree.nearest(query).draw();
+        }*/
         while (true) {
 
             // the location (x, y) of the mouse

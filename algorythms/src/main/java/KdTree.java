@@ -123,7 +123,7 @@ public class KdTree {
      * @return returns nearest neibhour.
      */
     public Point2D nearest(Point2D p) {
-//        Stopwatch stopwatch = new Stopwatch();
+//        long startTime=System.nanoTime();
         if(isEmpty()){
             return null;
         }
@@ -131,7 +131,7 @@ public class KdTree {
         Node rightBranch = rootNode.rightChild;
         Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
         Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-//        System.out.println(stopwatch.elapsedTime());
+//        System.out.println(System.nanoTime()-startTime);
         if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
             return nearestPoint2D2;
         } else {
