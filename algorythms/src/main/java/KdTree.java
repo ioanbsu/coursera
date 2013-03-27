@@ -5,10 +5,9 @@ import java.util.TreeSet;
  */
 public class KdTree {
 
+    private static long timing = 0;
     private int size;
     private Node rootNode;
-
-    private static long timing=0;
 
     /**
      * construct an empty set of points
@@ -125,20 +124,20 @@ public class KdTree {
      * @return returns nearest neibhour.
      */
     public Point2D nearest(Point2D p) {
-      //  long startTime=System.nanoTime();
+        //  long startTime=System.nanoTime();
         try {
             if (isEmpty()) {
                 return null;
             }
             Node leftBranch = rootNode.leftChild;
             Node rightBranch = rootNode.rightChild;
-            Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-            Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-         //   timing+=System.nanoTime()-startTime;
-            if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
-                return nearestPoint2D2;
+            NearestPoint nearestPoint2D1 = findNearest(leftBranch, new NearestPoint(rootNode.point, p.distanceSquaredTo(rootNode.point)), p);
+            NearestPoint nearestPoint2D2 = findNearest(rightBranch, new NearestPoint(rootNode.point, p.distanceSquaredTo(rootNode.point)), p);
+            //   timing+=System.nanoTime()-startTime;
+            if (nearestPoint2D1.point.distanceSquaredTo(p) > nearestPoint2D2.point.distanceSquaredTo(p)) {
+                return nearestPoint2D2.point;
             } else {
-                return nearestPoint2D1;
+                return nearestPoint2D1.point;
             }
         } catch (Exception e) {
             System.out.println(e.getCause());
@@ -147,47 +146,34 @@ public class KdTree {
         return null;
     }
 
-    private Point2D findNearest(Node nodeToSearch, Point2D nearestPoint, double nearestDistance, Point2D queryPoint) {
+    private NearestPoint findNearest(Node nodeToSearch, NearestPoint nearestPoint, Point2D queryPoint) {
         if (nodeToSearch == null) {
             return nearestPoint;
         }
         double calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nodeToSearch.point);
-        if (calculatedNearestDistanceSquared <= nearestDistance) {
-            nearestPoint = nodeToSearch.point;
-            nearestDistance = calculatedNearestDistanceSquared;
+        if (calculatedNearestDistanceSquared <= nearestPoint.distance) {
+            nearestPoint.point = nodeToSearch.point;
+            nearestPoint.distance = calculatedNearestDistanceSquared;
         }
         // if the closest point discovered so far is closer than the distance between the query point and the
         // rectangle corresponding to a node, there is no need to explore that node (or its subtrees)
         boolean goLeftFirst = isGoLeftFirst(nodeToSearch, queryPoint);
-        Point2D nearestPoint2 = nearestPoint;
         if (goLeftFirst) {
-            if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
+            if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= nearestPoint.distance) {
+                nearestPoint = findNearest(nodeToSearch.leftChild, nearestPoint, queryPoint);
             }
-            calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nearestPoint2);
-            if (calculatedNearestDistanceSquared <= nearestDistance) {
-                nearestDistance = calculatedNearestDistanceSquared;
-            }
-            if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
+            if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= nearestPoint.distance) {
+                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, queryPoint);
             }
         } else {
-            if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, nearestDistance, queryPoint);
+            if (nodeToSearch.rightChild != null && nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint) <= nearestPoint.distance) {
+                nearestPoint = findNearest(nodeToSearch.rightChild, nearestPoint, queryPoint);
             }
-            calculatedNearestDistanceSquared = queryPoint.distanceSquaredTo(nearestPoint);
-            if (calculatedNearestDistanceSquared <= nearestDistance) {
-                nearestDistance = calculatedNearestDistanceSquared;
-            }
-            if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= calculatedNearestDistanceSquared) {
-                nearestPoint2 = findNearest(nodeToSearch.leftChild, nearestPoint, nearestDistance, queryPoint);
+            if (nodeToSearch.leftChild != null && nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) <= nearestPoint.distance) {
+                nearestPoint = findNearest(nodeToSearch.leftChild, nearestPoint, queryPoint);
             }
         }
-
-        if (nearestPoint2.distanceSquaredTo(queryPoint) > nearestPoint.distanceSquaredTo(queryPoint)) {
-            return nearestPoint;
-        }
-        return nearestPoint2;
+        return nearestPoint;
     }
 
     private boolean isGoLeftFirst(Node nodeToSearch, Point2D queryPoint) {
@@ -197,7 +183,7 @@ public class KdTree {
             return false;
         }
 //        if (nodeToSearch.nodeType == NodeType.VERTICAL) {
-            return nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint)<nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint);
+        return nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint) < nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint);
 //        } else {
 //            return queryPoint.y() < nodeToSearch.point.y();
 //        }
@@ -277,6 +263,16 @@ public class KdTree {
 
         private ElementDoesNotExistException(Node foundDeepestNode) {
             this.foundDeepestNode = foundDeepestNode;
+        }
+    }
+
+    private class NearestPoint {
+        private Point2D point;
+        private double distance;
+
+        private NearestPoint(Point2D point, double distance) {
+            this.point = point;
+            this.distance = distance;
         }
     }
 

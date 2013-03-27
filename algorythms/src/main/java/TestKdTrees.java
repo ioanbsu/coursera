@@ -5,7 +5,7 @@ import java.io.File;
  */
 public class TestKdTrees {
     private static Point2D[] points = new Point2D[]
-            {       new Point2D(0.04, 0.92), //A
+            {new Point2D(0.04, 0.92), //A
                     new Point2D(0.54, 0.11), //B
                     new Point2D(0.53, 0.65), //C
                     new Point2D(0.32, 0.14), //D
@@ -14,8 +14,6 @@ public class TestKdTrees {
                     new Point2D(0.89, 0.46), //G
                     new Point2D(0.78, 0.67)  //H
             };
-
-
 
     public static void main(String[] args) {
 
@@ -166,6 +164,7 @@ public class TestKdTrees {
         // initialize the two data structures with point from standard input
         PointSET brute = new PointSET();
         KdTree kdtree = new KdTree();
+        System.out.println("started filling the tree");
         while (!in.isEmpty()) {
             double x = in.readDouble();
             double y = in.readDouble();
@@ -173,11 +172,13 @@ public class TestKdTrees {
             kdtree.insert(p);
             brute.insert(p);
         }
-
-        for (int i = 0; i < 5000; i++) {
+        System.out.println("started checking");
+        Stopwatch startTime = new Stopwatch();
+        for (int i = 0; i < 50000; i++) {
             Point2D query = new Point2D(Math.random(), Math.random());
-            kdtree.nearest(query).draw();
+            kdtree.nearest(query);
         }
+        System.out.println("done " + startTime.elapsedTime());
 //        489918304
 //        450120573
     /*    while (true) {
