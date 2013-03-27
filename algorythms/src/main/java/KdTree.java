@@ -8,6 +8,8 @@ public class KdTree {
     private int size;
     private Node rootNode;
 
+    private static long timing=0;
+
     /**
      * construct an empty set of points
      */
@@ -39,7 +41,7 @@ public class KdTree {
      * @param pointToInsert point to add to the set
      */
     public void insert(Point2D pointToInsert) {
-        if(pointToInsert==null){
+        if (pointToInsert == null) {
             return;
         }
         if (rootNode == null) {
@@ -86,7 +88,7 @@ public class KdTree {
      * @return true if contains, otherwise returns false.
      */
     public boolean contains(Point2D p) {
-        if(isEmpty()){
+        if (isEmpty()) {
             return false;
         }
         try {
@@ -123,20 +125,26 @@ public class KdTree {
      * @return returns nearest neibhour.
      */
     public Point2D nearest(Point2D p) {
-//        long startTime=System.nanoTime();
-        if(isEmpty()){
-            return null;
+      //  long startTime=System.nanoTime();
+        try {
+            if (isEmpty()) {
+                return null;
+            }
+            Node leftBranch = rootNode.leftChild;
+            Node rightBranch = rootNode.rightChild;
+            Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
+            Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
+         //   timing+=System.nanoTime()-startTime;
+            if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
+                return nearestPoint2D2;
+            } else {
+                return nearestPoint2D1;
+            }
+        } catch (Exception e) {
+            System.out.println(e.getCause());
+            e.printStackTrace();
         }
-        Node leftBranch = rootNode.leftChild;
-        Node rightBranch = rootNode.rightChild;
-        Point2D nearestPoint2D1 = findNearest(leftBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-        Point2D nearestPoint2D2 = findNearest(rightBranch, rootNode.point, p.distanceSquaredTo(rootNode.point), p);
-//        System.out.println(System.nanoTime()-startTime);
-        if (nearestPoint2D1.distanceSquaredTo(p) > nearestPoint2D2.distanceSquaredTo(p)) {
-            return nearestPoint2D2;
-        } else {
-            return nearestPoint2D1;
-        }
+        return null;
     }
 
     private Point2D findNearest(Node nodeToSearch, Point2D nearestPoint, double nearestDistance, Point2D queryPoint) {
@@ -183,16 +191,21 @@ public class KdTree {
     }
 
     private boolean isGoLeftFirst(Node nodeToSearch, Point2D queryPoint) {
-        if (nodeToSearch.nodeType == NodeType.VERTICAL) {
-            return queryPoint.x() < nodeToSearch.point.x();
-        } else {
-            return queryPoint.y() < nodeToSearch.point.y();
+        if (nodeToSearch.rightChild == null) {
+            return true;
+        } else if (nodeToSearch.leftChild == null) {
+            return false;
         }
+//        if (nodeToSearch.nodeType == NodeType.VERTICAL) {
+            return nodeToSearch.leftChild.rect.distanceSquaredTo(queryPoint)<nodeToSearch.rightChild.rect.distanceSquaredTo(queryPoint);
+//        } else {
+//            return queryPoint.y() < nodeToSearch.point.y();
+//        }
 
     }
 
     private void searchIntersected(Node nodeToAnalyze, TreeSet<Point2D> intersectedNodes, RectHV rect) {
-        if(nodeToAnalyze==null){
+        if (nodeToAnalyze == null) {
             return;
         }
         if (rect.contains(nodeToAnalyze.point)) {

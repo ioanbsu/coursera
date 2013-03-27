@@ -4,11 +4,29 @@ import java.io.File;
  * @author IoaN, 3/17/13 6:15 PM
  */
 public class TestKdTrees {
+    private static Point2D[] points = new Point2D[]
+            {       new Point2D(0.04, 0.92), //A
+                    new Point2D(0.54, 0.11), //B
+                    new Point2D(0.53, 0.65), //C
+                    new Point2D(0.32, 0.14), //D
+                    new Point2D(0.46, 0.98), //E
+                    new Point2D(0.88, 0.88), //F
+                    new Point2D(0.89, 0.46), //G
+                    new Point2D(0.78, 0.67)  //H
+            };
+
+
 
     public static void main(String[] args) {
+
+        KdTree kdTree = new KdTree();
+        for (Point2D point : points) {
+            kdTree.insert(point);
+        }
+        System.out.println("");
         File folder = new File(ClassLoader.getSystemResource("kdtree").getFile());
         for (File file : folder.listFiles()) {
-            if (!file.getName().endsWith("circle100.txt")) {
+            if (!file.getName().endsWith("input1M.txt")) {
                 continue;
             }
 
@@ -32,7 +50,7 @@ public class TestKdTrees {
             Point2D p = new Point2D(x, y);
             kdtree.insert(p);
         }
-        kdtree.range(new RectHV(0.40955,0.2398, 0.45598, 0.97129));
+        kdtree.range(new RectHV(0.40955, 0.2398, 0.45598, 0.97129));
 
 
     }
@@ -156,11 +174,13 @@ public class TestKdTrees {
             brute.insert(p);
         }
 
-    /*    for(int i=0;i<25000;i++){
-            Point2D query = new Point2D(Math.random(),Math.random());
+        for (int i = 0; i < 5000; i++) {
+            Point2D query = new Point2D(Math.random(), Math.random());
             kdtree.nearest(query).draw();
-        }*/
-        while (true) {
+        }
+//        489918304
+//        450120573
+    /*    while (true) {
 
             // the location (x, y) of the mouse
             double x = StdDraw.mouseX();
@@ -184,7 +204,7 @@ public class TestKdTrees {
             kdtree.nearest(query).draw();
             StdDraw.show(0);
             StdDraw.show(40);
-        }
+        }*/
     }
 
 }

@@ -7,8 +7,8 @@ public class QuickSort extends AbstractSort {
 
     public static void main(String[] args) {
         QuickSort quickSort = new QuickSort();
-//        Integer[] array = (Integer[]) stringToArray("27 81 79 30 38 85 21 22 70 45 66 75");
-        String[] array = "B B B A A A A A B A B A".split(" ");
+        Integer[] array = (Integer[]) stringToArray("27 81 79 30 38 85 21 22 70 45 66 75");
+//        String[] array = "B B B A A A A A B A B A".split(" ");
         quickSort.sort(array);
     }
 
@@ -36,7 +36,7 @@ public class QuickSort extends AbstractSort {
         if (!searchUp) {
             for (int i = compareInd2; i > compareInd1 ; i--) {
                 if (array[i].compareTo(array[compareInd1]) < 0) {
-                    exchange(array, compareInd1, i);
+                    exch(array, compareInd1, i);
                     return sort(array, compareInd1 + 1, i, true);
                 }
             }
@@ -44,7 +44,7 @@ public class QuickSort extends AbstractSort {
         } else {
             for (int i = compareInd1; i < compareInd2; i++) {
                 if (array[i].compareTo(array[compareInd2]) > 0) {
-                    exchange(array, compareInd2, i);
+                    exch(array, compareInd2, i);
                    return sort(array, i, compareInd2 - 1, false);
                 }
             }

@@ -10,5 +10,5 @@ public interface Sort {
     public boolean isSorted(Comparable[] array, int beginning, int ending);
     public boolean isSorted(Comparable[] array);
 
-
+    public void printArray(Comparable[] array);
 }

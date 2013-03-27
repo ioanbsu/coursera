@@ -8,8 +8,8 @@ public class CourseraQuickSort extends AbstractSort {
 
     public static void main(String[] args) {
         CourseraQuickSort quickSort = new CourseraQuickSort();
-//        Integer[] array = (Integer[]) stringToArray("73 48 25 53 17 37 42 76 96 63 71 66");
-        String[] array = "A B A B A A A A B A A A".split(" ");
+        Integer[] array = (Integer[]) stringToArray("70 84 29 83 39 72 13 67 43 25 31 69");
+//        String[] array = "A B A B A A A A B A A A".split(" ");
         quickSort.sort(array);
         quickSort.printArray(array);
     }
@@ -35,9 +35,9 @@ public class CourseraQuickSort extends AbstractSort {
             if (i >= j) {
                 break;
             }
-            exchange(array, i, j);
+            exch(array, i, j);
         }
-        exchange(array, lo, j);
+        exch(array, lo, j);
         return j;
 
     }
