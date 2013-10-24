@@ -8,7 +8,7 @@
 public class QueenSolver {
 
 
-    public static final int BOARD_SIZE = 30;
+    public static final int BOARD_SIZE = 20;
 
     public static void main(String[] args) {
         QueenSolver queenSolver = new QueenSolver();
