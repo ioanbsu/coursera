@@ -28,9 +28,9 @@ public class ThreeWayQuickSort extends AbstractSort {
         while (i <= gt) {
             int cmp = array[i].compareTo(v);
             if (cmp < 0) {
-                exchange(array, lt++, i++);
+                exch(array, lt++, i++);
             } else if (cmp > 0) {
-                exchange(array, i, gt--);
+                exch(array, i, gt--);
             } else {
                 i++;
             }

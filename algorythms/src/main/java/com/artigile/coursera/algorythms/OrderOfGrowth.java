@@ -14,7 +14,6 @@ public class OrderOfGrowth {
             {262144, 725.65},
             {1048576, 13932.43}
     };
-
     public static double[][] q2Array = new double[][]{
             {4096, 0.16},
             {16384, 3.13},
@@ -27,8 +26,6 @@ public class OrderOfGrowth {
             {78125, 132.29},
             {390625, 4666.46}
     };
-
-
     public static double[][] q4Array = new double[][]{
             {46656, 0.01},
             {279936, 0.17},
@@ -36,15 +33,28 @@ public class OrderOfGrowth {
             {10077696, 71.08},
             {60466176, 1474.43}
     };
-
-
     public static double[][] q5Array = new double[][]{
             {7776, 0.07},
             {46656, 3.4},
             {279936, 162.01},
             {1679616, 7683.22},
     };
-
+    public static double[][] q6Array = new double[][]{
+            {3125, 0.74},
+            {15625, 40.27},
+            {78125, 2107.05},
+    };
+    public static double[][] q7Array = new double[][]{
+            {14348907, 0.81},
+            {43046721, 3.72},
+            {129140163, 17.01},
+            {387420489, 77.86},
+    };
+    public static double[][] q8Array = new double[][]{
+            {78125, 5.80},
+            {390625, 164.05},
+            {1953125, 4649.61}
+    };
 
     public static void main(String[] args) {
         calculateOrderOfGrowth(q1Array, 4);
@@ -52,6 +62,9 @@ public class OrderOfGrowth {
         calculateOrderOfGrowth(q3Array, 5);
         calculateOrderOfGrowth(q4Array, 6);
         calculateOrderOfGrowth(q5Array, 6);
+        calculateOrderOfGrowth(q6Array, 5);
+        calculateOrderOfGrowth(q7Array, 3);
+        calculateOrderOfGrowth(q8Array, 3);
     }
 
     private static void calculateOrderOfGrowth(double[][] arrayOfGrowth, int logBase) {
@@ -68,7 +81,6 @@ public class OrderOfGrowth {
         System.out.println("=============================================");
 
     }
-
 
     public static double getLogDistance(double var1, double var2, int logBase) {
         return (Math.log(var2) - Math.log(var1)) / Math.log(logBase);

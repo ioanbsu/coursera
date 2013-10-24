@@ -66,7 +66,7 @@ public class Shell {
         return (v.compareTo(w) < 0);
     }
 
-    // exchange a[i] and a[j]
+    // exch a[i] and a[j]
     private static void exch(Object[] a, int i, int j) {
         Object swap = a[i];
         a[i] = a[j];

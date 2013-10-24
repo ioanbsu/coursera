@@ -6,7 +6,7 @@ package com.artigile.coursera.algorythms.week3.sort;
 public class MergeBottomUp extends AbstractMergeSort {
 
     public static void main(String[] args) {
-        Integer[] array = (Integer[]) stringToArray("53 14 93 29 68 52 89 24 44 74");
+        Integer[] array = (Integer[]) stringToArray("41 13 71 23 50 56 40 80 74 79");
         MergeBottomUp mergeBottomUp = new MergeBottomUp();
         mergeBottomUp.sort(array);
         System.out.println("");
