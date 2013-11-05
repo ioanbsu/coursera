@@ -15,7 +15,7 @@ public class WordNet {
 
     Map<Integer, Set<Integer>> wordBidirectedNetgraph = new HashMap<Integer, Set<Integer>>();
     Map<Integer, Set<String>> synset = new HashMap<Integer, Set<String>>();
-    Map<Integer, String> def = new HashMap<Integer, String>();
+    //    Map<Integer, String> glosses = new HashMap<Integer, String>();
     Map<String, Integer> nouns = new HashMap<String, Integer>();
     Map<Integer, Set<Integer>> ancestorsMap = new HashMap<Integer, Set<Integer>>();
 
@@ -128,7 +128,7 @@ public class WordNet {
                     nouns.put(synonym, fieldId);
                 }
                 synset.put(fieldId, foundSynset);
-                def.put(fieldId, values[2]);
+//                glosses.put(fieldId, values[2]);
             }
         } catch (IOException e) {
             e.printStackTrace();

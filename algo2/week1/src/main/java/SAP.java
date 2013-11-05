@@ -10,7 +10,7 @@ public class SAP {
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
-        digraph = G;
+        digraph = new Digraph(G);
     }
 
     // for unit testing of this class (such as the one below)
