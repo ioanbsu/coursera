@@ -23,14 +23,18 @@ public class WordNet {
     public WordNet(String synsets, String hypernyms) {
         buildHypernyms(hypernyms);
         buildSynsets(synsets);
-        System.out.println(distance("1820s", "1750s"));
-        System.out.println(distance("1750s", "1820s"));
-        System.out.println(distance("1790s", "1850s"));
-        System.out.println(distance("1850s", "1790s"));
-        System.out.println(sap("1850s", "1790s"));
-        System.out.println(sap("1850s", "18-karat_gold"));
-        System.out.println(sap("1790s", "18-karat_gold"));
-        System.out.println(sap("1820s", "1830s"));
+        System.out.println(distance("George_Bush", "Jack_Kennedy"));
+        System.out.println(distance("George_Bush", "Eric_Blair"));
+        System.out.println(distance("Minsk", "Homyel"));
+        System.out.println(distance("Moscow", "Homyel"));
+        System.out.println(distance("Moscow", "Vladimir_Putin"));
+        System.out.println(distance("Apostelic_Father", "Vladimir_Putin"));
+        System.out.println(sap("George_Bush", "Jack_Kennedy"));
+        System.out.println(sap("George_Bush", "Eric_Blair"));
+        System.out.println(sap("Minsk", "Homyel"));
+        System.out.println(sap("Moscow", "Homyel"));
+        System.out.println(sap("Moscow", "Vladimir_Putin"));
+        System.out.println(sap("Apostelic_Father", "Vladimir_Putin"));
     }
 
     // for unit testing of this class
@@ -54,6 +58,9 @@ public class WordNet {
         //do bfs here
         Integer nounAid = nouns.get(nounA);
         Integer nounBid = nouns.get(nounB);
+        if (nounAid == null || nounBid == null) {
+            throw new IllegalArgumentException();
+        }
 
         int[] edgeTo = new int[synset.keySet().size()];
         boolean[] marked = new boolean[synset.keySet().size()];
@@ -76,11 +83,13 @@ public class WordNet {
                 }
                 break;
             }
-            for (Integer child : wordBidirectedNetgraph.get(nextToken)) {
-                if (!marked[child]) {
-                    dfsQueuePath.add(child);
-                    marked[child] = true;
-                    edgeTo[child] = nextToken;
+            if (wordBidirectedNetgraph.get(nextToken) != null) {
+                for (Integer child : wordBidirectedNetgraph.get(nextToken)) {
+                    if (!marked[child]) {
+                        dfsQueuePath.add(child);
+                        marked[child] = true;
+                        edgeTo[child] = nextToken;
+                    }
                 }
             }
         }
@@ -90,8 +99,14 @@ public class WordNet {
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
-        LinkedHashSet<Integer> ancesorsA = getAncestors(nouns.get(nounA));
-        LinkedHashSet<Integer> ancesorsB = getAncestors(nouns.get(nounB));
+        Integer nounAid = nouns.get(nounA);
+        Integer nounBid = nouns.get(nounB);
+
+        if (nounAid == null || nounBid == null) {
+            throw new IllegalArgumentException();
+        }
+        LinkedHashSet<Integer> ancesorsA = getAncestors(nounAid);
+        LinkedHashSet<Integer> ancesorsB = getAncestors(nounBid);
         for (Integer ancesorA : ancesorsA) {
             for (Integer ancesorB : ancesorsB) {
                 if (ancesorA.equals(ancesorB)) {
@@ -146,11 +161,15 @@ public class WordNet {
 
     private LinkedHashSet<Integer> getAncestors(int node) {
         LinkedHashSet<Integer> mainAnscestorsQueue = new LinkedHashSet<Integer>();
+        if (ancestorsMap.get(node) == null) {
+            return mainAnscestorsQueue;
+        }
+
         mainAnscestorsQueue.add(node);
         LinkedHashSet<Integer> checkQueue = new LinkedHashSet<Integer>();
-        for (Integer integer : ancestorsMap.get(node)) {
-            if (mainAnscestorsQueue.add(integer)) {
-                checkQueue.addAll(ancestorsMap.get(integer));
+        for (Integer ancestor1 : ancestorsMap.get(node)) {
+            if (mainAnscestorsQueue.add(ancestor1)) {
+                checkQueue.addAll(ancestorsMap.get(ancestor1));
             }
         }
         for (Integer queueNode : checkQueue) {
