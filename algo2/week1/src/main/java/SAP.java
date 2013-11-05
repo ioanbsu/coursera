@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 public class SAP {
     private Digraph digraph;
 
+
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         digraph = new Digraph(G);
@@ -62,14 +63,26 @@ public class SAP {
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        return -1;
+        BreadthFirstDirectedPaths breadthFirstDirectedPaths = new BreadthFirstDirectedPaths(digraph, v);
+        int length = Integer.MAX_VALUE;
+        for (Integer node : w) {
+            if (breadthFirstDirectedPaths.hasPathTo(node)) {
+                int newLength = breadthFirstDirectedPaths.distTo(node);
+                if (newLength < length) {
+                    length = newLength;
+                }
+            }
+        }
+        if (length == Integer.MAX_VALUE) {
+            return -1;
+        }
+        return length;
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
         return -1;
     }
-
 
     private LinkedHashSet<Integer> getAncestors(int node) {
         LinkedHashSet<Integer> mainAnscestorsQueue = new LinkedHashSet<Integer>();
