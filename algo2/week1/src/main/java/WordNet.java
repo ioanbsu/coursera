@@ -13,7 +13,6 @@ import java.util.*;
  */
 public class WordNet {
 
-    Map<Integer, Set<Integer>> wordNetgraph = new HashMap<Integer, Set<Integer>>();
     Map<Integer, Set<Integer>> wordBidirectedNetgraph = new HashMap<Integer, Set<Integer>>();
     Map<Integer, Set<String>> synset = new HashMap<Integer, Set<String>>();
     Map<Integer, String> def = new HashMap<Integer, String>();
@@ -127,16 +126,13 @@ public class WordNet {
             for (String configStr : hypernymsFileToStringList) {
                 String[] values = configStr.split(",");
                 int child = convertIntToInteger(values[0]);
-                createMapIfNecessary(child, wordNetgraph);
                 createMapIfNecessary(child, wordBidirectedNetgraph);
                 createMapIfNecessary(child, ancestorsMap);
                 if (values.length > 1) {
                     for (int i = 1; i < values.length; i++) {
                         int parent = convertIntToInteger(values[i]);
-                        createMapIfNecessary(parent, wordNetgraph);
                         createMapIfNecessary(parent, wordBidirectedNetgraph);
                         createMapIfNecessary(parent, ancestorsMap);
-                        wordNetgraph.get(parent).add(child);
                         wordBidirectedNetgraph.get(parent).add(child);
                         wordBidirectedNetgraph.get(child).add(parent);
                         ancestorsMap.get(child).add(parent);
