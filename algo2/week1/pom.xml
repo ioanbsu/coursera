@@ -14,32 +14,33 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.artigile.coursera</groupId>
+        <artifactId>mainpom</artifactId>
+        <version>1.0</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
     <groupId>com.artigile.coursera</groupId>
-    <artifactId>mainpom</artifactId>
-    <packaging>pom</packaging>
-    <name>Coursera classes</name>
+    <artifactId>algo2</artifactId>
+    <packaging>jar</packaging>
+    <name>Algorythms</name>
     <version>1.0</version>
-    <modules>
-        <module>algorythms</module>
-        <module>algo2/week1</module>
-    </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>14.0-rc1</version>
-            </dependency>
+    <dependencies>
 
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.9</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
 
     <build>

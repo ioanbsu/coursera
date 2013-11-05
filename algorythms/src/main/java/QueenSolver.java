@@ -8,18 +8,13 @@
 public class QueenSolver {
 
 
-    public static final int BOARD_SIZE = 20;
+    public static final int BOARD_SIZE = 8;
 
     public static void main(String[] args) {
         QueenSolver queenSolver = new QueenSolver();
         boolean board[][] = new boolean[BOARD_SIZE][BOARD_SIZE];
-        if (queenSolver.findNext(0, board)) {
-            queenSolver.printBoard(board);
-        } else {
-            System.out.println("No Solution");
-        }
+        queenSolver.findNext(0, board);
     }
-
 
     public boolean findNext(int row, boolean[][] board) {
         if (row == BOARD_SIZE) {
@@ -28,7 +23,11 @@ public class QueenSolver {
         for (int col = 0; col < BOARD_SIZE; col++) {
             board[row][col] = true;
             if (checkBoard(board) && findNext(row + 1, board)) {
-                return true;
+                if (col == BOARD_SIZE - 1) {
+                    return true;
+                } else {
+                    printBoard(board);
+                }
             } else {
                 board[row][col] = false;
             }
@@ -49,7 +48,7 @@ public class QueenSolver {
                 }
             }
         }
-        printBoard(board);
+//        printBoard(board);
         return true;
     }
 
