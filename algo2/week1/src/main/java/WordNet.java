@@ -8,11 +8,11 @@ import java.util.*;
  */
 public class WordNet {
 
-    Digraph digraph;
-    Map<Integer, Set<String>> synset = new HashMap<Integer, Set<String>>();
-    Map<Integer, String> synPureData = new HashMap<Integer, String>();
-    Map<String, Set<Integer>> nouns = new HashMap<String, Set<Integer>>();
-    Map<Integer, Set<Integer>> ancestorsMap = new HashMap<Integer, Set<Integer>>();
+    private Digraph digraph;
+    private Map<Integer, Set<String>> synset = new HashMap<Integer, Set<String>>();
+    private Map<Integer, String> synPureData = new HashMap<Integer, String>();
+    private Map<String, Set<Integer>> nouns = new HashMap<String, Set<Integer>>();
+    private Map<Integer, Set<Integer>> ancestorsMap = new HashMap<Integer, Set<Integer>>();
     private SAP sap;
 
     // constructor takes the name of the two input files
