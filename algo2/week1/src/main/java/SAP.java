@@ -45,6 +45,33 @@ public class SAP {
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> a, Iterable<Integer> b) {
+        return traverseGraph(a, b, TraversingResultType.LENGHT);
+    }
+
+    // a common ancestor that participates in shortest ancestral path; -1 if no such path
+    public int ancestor(Iterable<Integer> a, Iterable<Integer> b) {
+        return traverseGraph(a, b, TraversingResultType.ANCESTOR);
+    }
+
+    private LinkedHashSet<Integer> getAncestors(int node) {
+        LinkedHashSet<Integer> mainAnscestorsQueue = new LinkedHashSet<Integer>();
+        mainAnscestorsQueue.add(node);
+        LinkedHashSet<Integer> checkQueue = new LinkedHashSet<Integer>();
+        for (Integer ancestor1 : digraph.adj(node)) {
+            if (mainAnscestorsQueue.add(ancestor1)) {
+                for (Integer ancestor2 : digraph.adj(ancestor1)) {
+                    checkQueue.add(ancestor2);
+                }
+            }
+        }
+        for (Integer queueNode : checkQueue) {
+            mainAnscestorsQueue.addAll(getAncestors(queueNode));
+        }
+        return mainAnscestorsQueue;
+    }
+
+
+    private int traverseGraph(Iterable<Integer> a, Iterable<Integer> b, TraversingResultType type) {
         boolean markedA[] = new boolean[digraph.V()];
         boolean markedB[] = new boolean[digraph.V()];
         int distToA[] = new int[digraph.V()];
@@ -65,124 +92,68 @@ public class SAP {
                 return 0;
             }
         }
-        int length = -1;
-        while (true) {
-            boolean counting = false;
-            if (!qA.isEmpty()) {
-                counting = true;
-                int vA = qA.dequeue();
-                for (int w : digraph.adj(vA)) {
-                    if (!markedA[w]) {
-                        distToA[w] = distToA[vA] + 1;
-                        markedA[w] = true;
-                        qA.enqueue(w);
-                    }
-                    if (markedA[w] && markedB[w]) {
-                        length = distToA[w] + distToB[w];
-                        break;
-                    }
-                }
-            }
-            if (!qB.isEmpty()) {
-                counting = true;
-                int vB = qB.dequeue();
-                for (int w : digraph.adj(vB)) {
-                    if (!markedB[w]) {
-                        distToB[w] = distToB[vB] + 1;
-                        markedB[w] = true;
-                        qB.enqueue(w);
-                    }
-                    if (markedA[w] && markedB[w]) {
-                        length = distToA[w] + distToB[w];
-                        break;
-                    }
-                }
-            }
-            if (!counting || length != -1) {
-                break;
-            }
-        }
-        return length;
-    }
-
-    // a common ancestor that participates in shortest ancestral path; -1 if no such path
-    public int ancestor(Iterable<Integer> a, Iterable<Integer> b) {
-        boolean markedA[] = new boolean[digraph.V()];
-        boolean markedB[] = new boolean[digraph.V()];
-        int distToA[] = new int[digraph.V()];
-        int distToB[] = new int[digraph.V()];
-
-        Queue<Integer> qA = new Queue<Integer>();
-        for (Integer nodeA : a) {
-            markedA[nodeA] = true;
-            distToA[nodeA] = 0;
-            qA.enqueue(nodeA);
-        }
-        Queue<Integer> qB = new Queue<Integer>();
-        for (Integer nodeB : b) {
-            markedB[nodeB] = true;
-            distToB[nodeB] = 0;
-            qB.enqueue(nodeB);
-            if (markedA[nodeB] && markedB[nodeB]) {
-                return nodeB;
-            }
-        }
+        int bestDistance = Integer.MAX_VALUE;
         int parentNode = -1;
+
         while (true) {
             boolean counting = false;
             if (!qA.isEmpty()) {
                 counting = true;
                 int vA = qA.dequeue();
-                for (int w : digraph.adj(vA)) {
-                    if (!markedA[w]) {
-                        distToA[w] = distToA[vA] + 1;
-                        markedA[w] = true;
-                        qA.enqueue(w);
+                for (int childA : digraph.adj(vA)) {
+                    if (!markedA[childA]) {
+                        distToA[childA] = distToA[vA] + 1;
+                        markedA[childA] = true;
+                        qA.enqueue(childA);
                     }
-                    if (markedA[w] && markedB[w]) {
-                        parentNode = w;
-                        break;
+                    if (markedA[childA] && markedB[childA]) {
+                        int distance = distToA[childA] + distToB[childA];
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            parentNode = childA;
+                        }
+                        if (bestDistance < distToA[childA]) {
+                            counting = false;
+                        }
                     }
                 }
             }
             if (!qB.isEmpty()) {
                 counting = true;
                 int vB = qB.dequeue();
-                for (int w : digraph.adj(vB)) {
-                    if (!markedB[w]) {
-                        distToB[w] = distToB[vB] + 1;
-                        markedB[w] = true;
-                        qB.enqueue(w);
+                for (int childB : digraph.adj(vB)) {
+                    if (!markedB[childB]) {
+                        distToB[childB] = distToB[vB] + 1;
+                        markedB[childB] = true;
+                        qB.enqueue(childB);
                     }
-                    if (markedA[w] && markedB[w]) {
-                        parentNode = w;
-                        break;
+                    if (markedA[childB] && markedB[childB]) {
+                        int distance = distToA[childB] + distToB[childB];
+                        if (distance < bestDistance) {
+                            bestDistance = distance;
+                            parentNode = childB;
+                        }
+                        if (bestDistance < distToB[childB]) {
+                            counting = false;
+                        }
                     }
                 }
             }
-            if (!counting || parentNode != -1) {
+            if (!counting) {
                 break;
             }
         }
-        return parentNode;
+        if (type == TraversingResultType.ANCESTOR) {
+            return parentNode;
+        }
+        if (type == TraversingResultType.LENGHT) {
+            return bestDistance;
+        }
+        return -1;
     }
 
-    private LinkedHashSet<Integer> getAncestors(int node) {
-        LinkedHashSet<Integer> mainAnscestorsQueue = new LinkedHashSet<Integer>();
-        mainAnscestorsQueue.add(node);
-        LinkedHashSet<Integer> checkQueue = new LinkedHashSet<Integer>();
-        for (Integer ancestor1 : digraph.adj(node)) {
-            if (mainAnscestorsQueue.add(ancestor1)) {
-                for (Integer ancestor2 : digraph.adj(ancestor1)) {
-                    checkQueue.add(ancestor2);
-                }
-            }
-        }
-        for (Integer queueNode : checkQueue) {
-            mainAnscestorsQueue.addAll(getAncestors(queueNode));
-        }
-        return mainAnscestorsQueue;
+    private enum TraversingResultType {
+        LENGHT, ANCESTOR;
     }
-
 
 }
