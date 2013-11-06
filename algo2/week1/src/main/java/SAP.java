@@ -89,7 +89,12 @@ public class SAP {
             distToB[nodeB] = 0;
             qB.enqueue(nodeB);
             if (markedA[nodeB] && markedB[nodeB]) {
-                return 0;
+                if (type == TraversingResultType.LENGHT) {
+                    return 0;
+                }
+                if (type == TraversingResultType.ANCESTOR) {
+                    return nodeB;
+                }
             }
         }
         int bestDistance = Integer.MAX_VALUE;
@@ -147,6 +152,9 @@ public class SAP {
             return parentNode;
         }
         if (type == TraversingResultType.LENGHT) {
+            if (bestDistance == Integer.MAX_VALUE) {
+                return -1;
+            }
             return bestDistance;
         }
         return -1;

@@ -9,9 +9,8 @@ import java.util.*;
 public class WordNet {
 
     private Digraph digraph;
-    private Map<Integer, Set<String>> synset = new HashMap<Integer, Set<String>>();
     private Map<Integer, String> synPureData = new HashMap<Integer, String>();
-    private Map<String, Set<Integer>> nouns = new HashMap<String, Set<Integer>>();
+    private Map<String, Set<Integer>> synonyms = new HashMap<String, Set<Integer>>();
     private Map<Integer, Set<Integer>> ancestorsMap = new HashMap<Integer, Set<Integer>>();
     private SAP sap;
 
@@ -20,6 +19,10 @@ public class WordNet {
         int synSize = buildSynsets(synsets);
         buildHypernyms(hypernyms, synSize);
         sap = new SAP(digraph);
+        DirectedCycle cycle = new DirectedCycle(digraph);
+        if (cycle.hasCycle()) {
+            throw new IllegalArgumentException();
+        }
     }
 
     // for unit testing of this class
@@ -29,24 +32,35 @@ public class WordNet {
 
     // the set of nouns (no duplicates), returned as an Iterable
     public Iterable<String> nouns() {
-        return nouns.keySet();
+        return synonyms.keySet();
     }
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
-        return nouns.keySet().contains(word);
+        return synonyms.containsKey(word);
 
     }
 
     // distance between nounA and nounB (defined below)
     public int distance(String nounA, String nounB) {
-        return sap.length(nouns.get(nounA), nouns.get(nounB));
+        checkNoun(nounA);
+        checkNoun(nounB);
+        return sap.length(synonyms.get(nounA), synonyms.get(nounB));
+    }
+
+    private void checkNoun(String noun) {
+        if (!isNoun(noun)) {
+            StdOut.print("Not found noun" + noun);
+            throw new IllegalArgumentException(noun);
+        }
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
-        int ancestorId = sap.ancestor(nouns.get(nounA), nouns.get(nounB));
+        checkNoun(nounA);
+        checkNoun(nounB);
+        int ancestorId = sap.ancestor(synonyms.get(nounA), synonyms.get(nounB));
         if (ancestorId != -1) {
             return synPureData.get(ancestorId);
         }
@@ -63,15 +77,13 @@ public class WordNet {
             synPureData.put(fieldId, synonyms);
             Set<String> foundSynset = new HashSet<String>(Arrays.asList(synonyms.split(" ")));
             for (String synonym : foundSynset) {
-                if (!nouns.containsKey(synonym)) {
-                    nouns.put(synonym, new HashSet<Integer>());
+                if (!this.synonyms.containsKey(synonym)) {
+                    this.synonyms.put(synonym, new HashSet<Integer>());
                 }
-                nouns.get(synonym).add(fieldId);
+                this.synonyms.get(synonym).add(fieldId);
             }
-            synset.put(fieldId, foundSynset);
         }
-
-        return nouns.size();
+        return synonyms.size();
     }
 
     private void buildHypernyms(String hypernyms, int synSize) {
