@@ -128,15 +128,8 @@ public class WordNet {
 
     }
 
-
     private Integer convertIntToInteger(String value) {
         return Integer.parseInt(value);
-    }
-
-    private void createMapIfNecessary(int child, Map<Integer, Set<Integer>> graph) {
-        if (!graph.containsKey(child)) {
-            graph.put(child, new HashSet<Integer>());
-        }
     }
 
     private void checkHasNoCycles() {
