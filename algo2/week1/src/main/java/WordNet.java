@@ -11,7 +11,6 @@ public class WordNet {
     private Digraph digraph;
     private Map<Integer, String> synPureData = new HashMap<Integer, String>();
     private Map<String, Set<Integer>> synonyms = new HashMap<String, Set<Integer>>();
-    private Map<Integer, Set<Integer>> ancestorsMap = new HashMap<Integer, Set<Integer>>();
     private SAP sap;
 
     // constructor takes the name of the two input files
@@ -29,6 +28,16 @@ public class WordNet {
         checkHasNoCycles();
 //        System.out.println(stopwatch.elapsedTime());
         // Check if not rooted
+
+        int roots = 0;
+        for (int i = 0; i < digraph.V(); i++) {
+            if (!digraph.adj(i).iterator().hasNext()) {
+                roots++;
+            }
+        }
+        if (roots > 1) {
+            throw new IllegalArgumentException();
+        }
         sap = new SAP(digraph);
 
 
@@ -93,7 +102,7 @@ public class WordNet {
                 this.synonyms.get(synonym).add(fieldId);
             }
         }
-        return synonyms.size();
+        return synPureData.size();
     }
 
     private void buildHypernyms(String hypernyms, int synSize) {
@@ -104,13 +113,10 @@ public class WordNet {
             String configStr = in.readLine();
             String[] values = configStr.split(",");
             int child = convertIntToInteger(values[0]);
-            createMapIfNecessary(child, ancestorsMap);
             if (values.length > 1) {
                 for (int i = 1; i < values.length; i++) {
                     int parent = convertIntToInteger(values[i]);
                     digraph.addEdge(child, parent);
-                    createMapIfNecessary(parent, ancestorsMap);
-                    ancestorsMap.get(child).add(parent);
                 }
             } else {
                 rootsFound++;
@@ -122,24 +128,6 @@ public class WordNet {
 
     }
 
-    private LinkedHashSet<Integer> getAncestors(int node) {
-        LinkedHashSet<Integer> mainAnscestorsQueue = new LinkedHashSet<Integer>();
-        if (ancestorsMap.get(node) == null) {
-            return mainAnscestorsQueue;
-        }
-
-        mainAnscestorsQueue.add(node);
-        LinkedHashSet<Integer> checkQueue = new LinkedHashSet<Integer>();
-        for (Integer ancestor1 : ancestorsMap.get(node)) {
-            if (mainAnscestorsQueue.add(ancestor1)) {
-                checkQueue.addAll(ancestorsMap.get(ancestor1));
-            }
-        }
-        for (Integer queueNode : checkQueue) {
-            mainAnscestorsQueue.addAll(getAncestors(queueNode));
-        }
-        return mainAnscestorsQueue;
-    }
 
     private Integer convertIntToInteger(String value) {
         return Integer.parseInt(value);
