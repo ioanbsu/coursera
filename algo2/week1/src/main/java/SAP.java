@@ -101,50 +101,55 @@ public class SAP {
         int parentNode = -1;
 
         while (true) {
-            boolean counting = false;
+            boolean doneA = false;
+            boolean doneB = false;
             if (!qA.isEmpty()) {
-                counting = true;
                 int vA = qA.dequeue();
-                for (int childA : digraph.adj(vA)) {
-                    if (!markedA[childA]) {
-                        distToA[childA] = distToA[vA] + 1;
-                        markedA[childA] = true;
-                        qA.enqueue(childA);
-                    }
-                    if (markedA[childA] && markedB[childA]) {
-                        int distance = distToA[childA] + distToB[childA];
-                        if (distance < bestDistance) {
-                            bestDistance = distance;
-                            parentNode = childA;
+                if (bestDistance >= distToB[vA]) {
+                    for (int childA : digraph.adj(vA)) {
+                        if (!markedA[childA]) {
+                            distToA[childA] = distToA[vA] + 1;
+                            markedA[childA] = true;
+                            qA.enqueue(childA);
                         }
-                        if (bestDistance < distToA[childA]) {
-                            counting = false;
+                        if (markedA[childA] && markedB[childA]) {
+                            int distance = distToA[childA] + distToB[childA];
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                parentNode = childA;
+                            }
                         }
                     }
+                } else {
+                    doneA = true;
                 }
+            } else {
+                doneA = true;
             }
             if (!qB.isEmpty()) {
-                counting = true;
                 int vB = qB.dequeue();
-                for (int childB : digraph.adj(vB)) {
-                    if (!markedB[childB]) {
-                        distToB[childB] = distToB[vB] + 1;
-                        markedB[childB] = true;
-                        qB.enqueue(childB);
-                    }
-                    if (markedA[childB] && markedB[childB]) {
-                        int distance = distToA[childB] + distToB[childB];
-                        if (distance < bestDistance) {
-                            bestDistance = distance;
-                            parentNode = childB;
+                if (bestDistance >= distToB[vB]) {
+                    for (int childB : digraph.adj(vB)) {
+                        if (!markedB[childB]) {
+                            distToB[childB] = distToB[vB] + 1;
+                            markedB[childB] = true;
+                            qB.enqueue(childB);
                         }
-                        if (bestDistance < distToB[childB]) {
-                            counting = false;
+                        if (markedA[childB] && markedB[childB]) {
+                            int distance = distToA[childB] + distToB[childB];
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                parentNode = childB;
+                            }
                         }
                     }
+                } else {
+                    doneB = true;
                 }
+            } else {
+                doneB = true;
             }
-            if (!counting) {
+            if (doneA && doneB) {
                 break;
             }
         }

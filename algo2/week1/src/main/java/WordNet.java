@@ -16,14 +16,24 @@ public class WordNet {
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
+//        Stopwatch stopwatch = new Stopwatch();
         int synSize = buildSynsets(synsets);
+//        System.out.println(stopwatch.elapsedTime());
+
+//        stopwatch = new Stopwatch();
         buildHypernyms(hypernyms, synSize);
+//        System.out.println(stopwatch.elapsedTime());
+
+//        stopwatch = new Stopwatch();
+        // Check for cycles
+        checkHasNoCycles();
+//        System.out.println(stopwatch.elapsedTime());
+        // Check if not rooted
         sap = new SAP(digraph);
-        DirectedCycle cycle = new DirectedCycle(digraph);
-        if (cycle.hasCycle()) {
-            throw new IllegalArgumentException();
-        }
+
+
     }
+
 
     // for unit testing of this class
     public static void main(String[] args) {
@@ -89,6 +99,7 @@ public class WordNet {
     private void buildHypernyms(String hypernyms, int synSize) {
         digraph = new Digraph(synSize);
         In in = new In(new File(hypernyms));
+        int rootsFound = 0;
         while (!in.isEmpty()) {
             String configStr = in.readLine();
             String[] values = configStr.split(",");
@@ -100,6 +111,11 @@ public class WordNet {
                     digraph.addEdge(child, parent);
                     createMapIfNecessary(parent, ancestorsMap);
                     ancestorsMap.get(child).add(parent);
+                }
+            } else {
+                rootsFound++;
+                if (rootsFound > 1) {
+                    throw new IllegalArgumentException();
                 }
             }
         }
@@ -126,7 +142,7 @@ public class WordNet {
     }
 
     private Integer convertIntToInteger(String value) {
-        return Integer.valueOf(value.replace(" ", ""));
+        return Integer.parseInt(value);
     }
 
     private void createMapIfNecessary(int child, Map<Integer, Set<Integer>> graph) {
@@ -135,5 +151,11 @@ public class WordNet {
         }
     }
 
+    private void checkHasNoCycles() {
+        DirectedCycle cycle = new DirectedCycle(digraph);
+        if (cycle.hasCycle()) {
+            throw new IllegalArgumentException();
+        }
+    }
 
 }
