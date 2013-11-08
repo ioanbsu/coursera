@@ -21,9 +21,10 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <groupId>com.artigile.coursera.algo2</groupId>
-    <artifactId>week1</artifactId>
+
+    <artifactId>week2</artifactId>
     <packaging>jar</packaging>
-    <name>week1</name>
+    <name>week2</name>
     <version>1.0</version>
 
     <dependencies>
