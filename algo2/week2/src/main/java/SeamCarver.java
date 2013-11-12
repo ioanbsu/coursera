@@ -107,7 +107,7 @@ public class SeamCarver {
         }
     }
 
-    /**                                                                     0
+    /**
      * remove vertical seam from picture
      *
      * @param a the vertical
