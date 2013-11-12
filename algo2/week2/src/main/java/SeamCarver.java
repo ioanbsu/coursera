@@ -1,3 +1,4 @@
+import java.awt.*;
 import java.util.Arrays;
 
 /**
@@ -15,30 +16,27 @@ public class SeamCarver {
     private final int BLUE_COLOR = 0;
     private Picture picture;
     private double[][] energyMatrix;
-    private double[][] transformedEnergyMatrix;
+    private int[][] imageMatrix;
 
     public SeamCarver(Picture picture) {
         this.picture = picture;
-        energyMatrix = new double[height()][width()];
-        transformedEnergyMatrix = new double[width()][height()];
-
-        for (int heightIndex = 0; heightIndex < height(); heightIndex++) {
-            for (int widthIndex = 0; widthIndex < width(); widthIndex++) {
-                double calculatedEnergy = energy(widthIndex, heightIndex);
-                energyMatrix[heightIndex][widthIndex] = calculatedEnergy;
-                transformedEnergyMatrix[widthIndex][heightIndex] = calculatedEnergy;
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-
+        initImageMatrix(picture);
+        calculateEnergyAndImageMatrix();
     }
 
     /**
      * @return current picture
      */
     public Picture picture() {
+        if (picture.width() != imageMatrix[0].length || picture.height() != imageMatrix.length) {
+            Picture newPicture = new Picture(imageMatrix[0].length, imageMatrix.length);
+            for (int rowIndex = 0; rowIndex < imageMatrix.length; rowIndex++) {
+                for (int colIndex = 0; colIndex < imageMatrix[rowIndex].length; colIndex++) {
+                    newPicture.set(colIndex, rowIndex, new Color(imageMatrix[rowIndex][colIndex]));
+                }
+            }
+            picture = newPicture;
+        }
         return picture;
     }
 
@@ -46,14 +44,14 @@ public class SeamCarver {
      * @return width of current picture
      */
     public int width() {
-        return picture.width();
+        return imageMatrix[0].length;
     }
 
     /**
      * @return height of current picture
      */
     public int height() {
-        return picture.height();
+        return imageMatrix.length;
 
     }
 
@@ -63,7 +61,7 @@ public class SeamCarver {
      * @return energy of pixel at column x and row y
      */
     public double energy(int x, int y) {
-        if (x < 0 || y < 0 || x > picture.width() || y > picture.height()) {
+        if (x < 0 || y < 0 || x > energyMatrix[0].length || y > energyMatrix.length) {
             throw new IndexOutOfBoundsException();
         }
         if (x == 0 || x == width() - 1 || y == 0 || y == height() - 1) {
@@ -85,7 +83,12 @@ public class SeamCarver {
      * @return sequence of indices for horizontal seam
      */
     public int[] findHorizontalSeam() {
-        return calculatePath(transformedEnergyMatrix);
+        transformEnergyMatrix();
+        calculateEnergyAndImageMatrix();
+        int[] horizontalSeam = findVerticalSeam();
+        transformEnergyMatrix();
+        calculateEnergyAndImageMatrix();
+        return horizontalSeam;
     }
 
     /**
@@ -102,20 +105,13 @@ public class SeamCarver {
      * @param a the horizontal seam path
      */
     public void removeHorizontalSeam(int[] a) {
-        double[][] newEnergyMatrix = new double[energyMatrix.length - 1][energyMatrix[0].length];
-        double[][] newTransformedEnergyMatrix = new double[energyMatrix[0].length][energyMatrix.length - 1];
+        transformEnergyMatrix();
+        calculateEnergyAndImageMatrix();
+        removeVerticalSeam(a);
 
-        for (int rowNumber = 0; rowNumber < energyMatrix.length; rowNumber++) {
-            for (int colNumber = 0; colNumber < energyMatrix[rowNumber].length; colNumber++) {
-                if (colNumber < a[rowNumber]) {
-                    newEnergyMatrix[rowNumber][colNumber] = energyMatrix[rowNumber][colNumber];
-                    newTransformedEnergyMatrix[colNumber][rowNumber] = energyMatrix[rowNumber][colNumber];
-                } else {
-                    newEnergyMatrix[rowNumber][colNumber] = energyMatrix[rowNumber][colNumber + 1];
-                    newTransformedEnergyMatrix[colNumber][rowNumber] = energyMatrix[rowNumber][colNumber + 1];
-                }
-            }
-        }
+        transformEnergyMatrix();
+        calculateEnergyAndImageMatrix();
+
     }
 
     /**
@@ -124,18 +120,19 @@ public class SeamCarver {
      * @param a the vertical
      */
     public void removeVerticalSeam(int[] a) {
+        removePathFromArray(energyMatrix, a);
+        removePathFromArray(imageMatrix, a);
     }
 
     private int getHorizontalCentralDiff(int x, int y, int color) {
-        return ((picture.get(x + 1, y).getRGB() >> color) & 0xFF) - ((picture.get(x - 1, y).getRGB() >> color) & 0xFF);
+        return ((imageMatrix[y][x + 1] >> color) & 0xFF) - ((imageMatrix[y][x - 1] >> color) & 0xFF);
     }
 
     private int getVerticalCentralDiff(int x, int y, int color) {
-        return ((picture.get(x, y + 1).getRGB() >> color) & 0xFF) - ((picture.get(x, y - 1).getRGB() >> color) & 0xFF);
+        return ((imageMatrix[y + 1][x] >> color) & 0xFF) - ((imageMatrix[y - 1][x] >> color) & 0xFF);
     }
 
     private int[] calculatePath(double[][] energyMatrix) {
-        double minPath = Double.POSITIVE_INFINITY;
         int[] path = new int[energyMatrix.length + 2];
         EdgeWeightedDigraph pathsGraph = buildGraph(energyMatrix);
 
@@ -187,6 +184,66 @@ public class SeamCarver {
 
     private int getGraphPixelIndex(int i, int j, double[][] energyMatrix) {
         return energyMatrix[0].length * i + j;
+    }
+
+    private void removePathFromArray(double[][] energyMatrix, int[] a) {
+        double[][] newEnergyMatrix = new double[energyMatrix.length][energyMatrix[0].length - 1];
+        for (int rowIndex = 0; rowIndex < energyMatrix.length; rowIndex++) {
+            System.arraycopy(energyMatrix[rowIndex], 0, newEnergyMatrix[rowIndex], 0, a[rowIndex]);
+            if (a[rowIndex] < newEnergyMatrix[rowIndex].length) {
+                System.arraycopy(energyMatrix[rowIndex], a[rowIndex] + 1, newEnergyMatrix[rowIndex], a[rowIndex], energyMatrix[0].length - a[rowIndex] - 1);
+            }
+        }
+        this.energyMatrix = newEnergyMatrix;
+    }
+
+    private void removePathFromArray(int[][] imageMatrix, int[] a) {
+        int[][] newImageMatrix = new int[imageMatrix.length][imageMatrix[0].length - 1];
+        for (int rowIndex = 0; rowIndex < imageMatrix.length; rowIndex++) {
+            System.arraycopy(imageMatrix[rowIndex], 0, newImageMatrix[rowIndex], 0, a[rowIndex]);
+            if (a[rowIndex] < newImageMatrix[rowIndex].length) {
+                System.arraycopy(imageMatrix[rowIndex], a[rowIndex] + 1, newImageMatrix[rowIndex], a[rowIndex], imageMatrix[0].length - a[rowIndex] - 1);
+            }
+        }
+        this.imageMatrix = newImageMatrix;
+        for (int rowIndex = 0; rowIndex < imageMatrix.length; rowIndex++) {
+            if (a[rowIndex] < energyMatrix[0].length) {
+                energyMatrix[rowIndex][a[rowIndex]] = energy(a[rowIndex], rowIndex);
+            }
+            if (a[rowIndex] > 0) {
+                energyMatrix[rowIndex][a[rowIndex] - 1] = energy(a[rowIndex] - 1, rowIndex);
+            }
+        }
+    }
+
+    private void initImageMatrix(Picture picture) {
+        imageMatrix = new int[picture.height()][picture.width()];
+        for (int heightIndex = 0; heightIndex < picture.height(); heightIndex++) {
+            for (int widthIndex = 0; widthIndex < picture.width(); widthIndex++) {
+                imageMatrix[heightIndex][widthIndex] = picture.get(widthIndex, heightIndex).getRGB();
+            }
+        }
+    }
+
+    private void calculateEnergyAndImageMatrix() {
+        energyMatrix = new double[height()][width()];
+        for (int heightIndex = 0; heightIndex < height(); heightIndex++) {
+            for (int widthIndex = 0; widthIndex < width(); widthIndex++) {
+                double calculatedEnergy = energy(widthIndex, heightIndex);
+                energyMatrix[heightIndex][widthIndex] = calculatedEnergy;
+            }
+        }
+    }
+
+    private void transformEnergyMatrix() {
+        int[][] newImageMatrix = new int[imageMatrix[0].length][imageMatrix.length];
+        for (int i = 0; i < imageMatrix.length; i++) {
+            for (int j = 0; j < imageMatrix[i].length; j++) {
+                newImageMatrix[j][i] = imageMatrix[i][j];
+            }
+        }
+        imageMatrix = newImageMatrix;
+
     }
 
 
