@@ -10,12 +10,10 @@ import java.util.Arrays;
 public class SeamCarver {
 
 
-    private Picture picture;
-
     private final int RED_COLOR = 16;
     private final int GREEN_COLOR = 8;
     private final int BLUE_COLOR = 0;
-
+    private Picture picture;
     private double[][] energyMatrix;
     private double[][] transformedEnergyMatrix;
 
@@ -31,6 +29,10 @@ public class SeamCarver {
                 transformedEnergyMatrix[widthIndex][heightIndex] = calculatedEnergy;
             }
         }
+    }
+
+    public static void main(String[] args) {
+
     }
 
     /**
@@ -61,7 +63,7 @@ public class SeamCarver {
      * @return energy of pixel at column x and row y
      */
     public double energy(int x, int y) {
-        if (x < 0 || y < 0 || x > picture.width() || y > picture.width()) {
+        if (x < 0 || y < 0 || x > picture.width() || y > picture.height()) {
             throw new IndexOutOfBoundsException();
         }
         if (x == 0 || x == width() - 1 || y == 0 || y == height() - 1) {
@@ -86,7 +88,6 @@ public class SeamCarver {
         return calculatePath(transformedEnergyMatrix);
     }
 
-
     /**
      * @return sequence of indices for vertical seam
      */
@@ -101,9 +102,19 @@ public class SeamCarver {
      * @param a the horizontal seam path
      */
     public void removeHorizontalSeam(int[] a) {
+        double[][] newEnergyMatrix = new double[energyMatrix.length - 1][energyMatrix[0].length];
+        double[][] newTransformedEnergyMatrix = new double[energyMatrix[0].length][energyMatrix.length - 1];
 
-        for (int i=0;i<a.length;i++) {
-//            energyMatrix[i]=Arrays.copyOfRange(energyMatrix[i],0,a)
+        for (int rowNumber = 0; rowNumber < energyMatrix.length; rowNumber++) {
+            for (int colNumber = 0; colNumber < energyMatrix[rowNumber].length; colNumber++) {
+                if (colNumber < a[rowNumber]) {
+                    newEnergyMatrix[rowNumber][colNumber] = energyMatrix[rowNumber][colNumber];
+                    newTransformedEnergyMatrix[colNumber][rowNumber] = energyMatrix[rowNumber][colNumber];
+                } else {
+                    newEnergyMatrix[rowNumber][colNumber] = energyMatrix[rowNumber][colNumber + 1];
+                    newTransformedEnergyMatrix[colNumber][rowNumber] = energyMatrix[rowNumber][colNumber + 1];
+                }
+            }
         }
     }
 
@@ -176,10 +187,6 @@ public class SeamCarver {
 
     private int getGraphPixelIndex(int i, int j, double[][] energyMatrix) {
         return energyMatrix[0].length * i + j;
-    }
-
-    public static void main(String[] args) {
-
     }
 
 
