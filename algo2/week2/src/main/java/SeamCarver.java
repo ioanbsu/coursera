@@ -8,11 +8,6 @@ import java.awt.*;
  */
 
 public class SeamCarver {
-
-
-    private final int RED_COLOR = 16;
-    private final int GREEN_COLOR = 8;
-    private final int BLUE_COLOR = 0;
     private Picture picture;
     private double[][] energyMatrix;
     private int[][] imageMatrix;
@@ -60,6 +55,9 @@ public class SeamCarver {
      * @return energy of pixel at column x and row y
      */
     public double energy(int x, int y) {
+        final int RED_COLOR = 16;
+        final int GREEN_COLOR = 8;
+        final int BLUE_COLOR = 0;
         if (x < 0 || y < 0 || x >= energyMatrix[0].length || y >= energyMatrix.length) {
             throw new IndexOutOfBoundsException();
         }
@@ -104,7 +102,6 @@ public class SeamCarver {
     public void removeHorizontalSeam(int[] a) {
         transformImageMatrix();
         removeVerticalSeam(a);
-
         transformImageMatrix();
 
     }
@@ -115,6 +112,14 @@ public class SeamCarver {
      * @param a the vertical
      */
     public void removeVerticalSeam(int[] a) {
+        if (a.length != height()) {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 0; i < a.length - 1; i++) {
+            if (Math.abs(a[i] - a[i + 1]) > 1) {
+                throw new IllegalArgumentException();
+            }
+        }
         removePathFromArray(energyMatrix, a);
         removePathFromArray(imageMatrix, a);
     }
@@ -129,6 +134,12 @@ public class SeamCarver {
 
     private int[] calculatePath(double[][] energyMatrix) {
         int[] newPath = new int[energyMatrix.length];
+        if (energyMatrix[0].length <= 2 || imageMatrix.length <= 2) {
+            for (int i = 0; i < energyMatrix.length; i++) {
+                newPath[i] = 0;
+            }
+            return newPath;
+        }
         double minFoundDistance = Double.POSITIVE_INFINITY;
         int minFoundDistancePathIndex = -1;
         DirectedEdge[] minEdgeTo = new DirectedEdge[imageMatrix[0].length * imageMatrix.length];
@@ -143,8 +154,8 @@ public class SeamCarver {
         }
         DirectedEdge[] edgeTo = new DirectedEdge[imageMatrix[0].length * imageMatrix.length];
 
-        for (int colNum = 1; colNum < imageMatrix[0].length - 1; colNum++) {
-            for (int rowNum = 0; rowNum < imageMatrix.length - 1; rowNum++) {
+        for (int rowNum = 0; rowNum < imageMatrix.length - 1; rowNum++) {
+            for (int colNum = 1; colNum < imageMatrix[0].length - 1; colNum++) {
                 int v = getGraphPixelIndex(rowNum, colNum, energyMatrix);
                 for (int kid = Math.max(0, colNum - 1); kid <= Math.min(colNum + 1, imageMatrix[0].length); kid++) {
                     int w = getGraphPixelIndex(rowNum + 1, kid, energyMatrix);
