@@ -1,5 +1,4 @@
 import java.awt.*;
-import java.util.LinkedList;
 
 /**
  * Date: 11/10/13
@@ -147,14 +146,12 @@ public class SeamCarver {
         for (int colNum = 1; colNum < imageMatrix[0].length - 1; colNum++) {
             for (int rowNum = 0; rowNum < imageMatrix.length - 1; rowNum++) {
                 int v = getGraphPixelIndex(rowNum, colNum, energyMatrix);
-                LinkedList<Coordinate> kids = getKids(new Coordinate(colNum, rowNum));
-                for (Coordinate kid : kids) {
-                    int w = getGraphPixelIndex(kid.getY(), kid.getX(), energyMatrix);
+                for (int kid = Math.max(0, colNum - 1); kid <= Math.min(colNum + 1, imageMatrix[0].length); kid++) {
+                    int w = getGraphPixelIndex(rowNum + 1, kid, energyMatrix);
                     relax(new DirectedEdge(v, w, energyMatrix[rowNum][colNum]), distTo, edgeTo);
                 }
             }
         }
-
         for (int i = imageMatrix.length * imageMatrix[0].length - imageMatrix[0].length; i < imageMatrix.length * imageMatrix[0].length; i++) {
             if (distTo[i] < minFoundDistance) {
                 minFoundDistancePathIndex = i;
@@ -162,7 +159,6 @@ public class SeamCarver {
                 minEdgeTo = edgeTo;
             }
         }
-
         int counter = energyMatrix.length - 1;
         DirectedEdge nextEdge = minEdgeTo[minFoundDistancePathIndex];
         newPath[counter--] = nextEdge.to() % energyMatrix[0].length;
@@ -181,36 +177,8 @@ public class SeamCarver {
         }
     }
 
-    private EdgeWeightedDigraph buildGraph(double[][] energyMatrix) {
-        EdgeWeightedDigraph energyWeightedGraphVertical = new EdgeWeightedDigraph(width() * height() + 2);
-        for (int heightIndex = 0; heightIndex < energyMatrix.length; heightIndex++) {
-            for (int widthIndex = 0; widthIndex < energyMatrix[heightIndex].length; widthIndex++) {
-                if (heightIndex > 0) {
-                    if (widthIndex > 0) {
-                        linkVerticesInGraph(energyWeightedGraphVertical, heightIndex - 1, widthIndex - 1, heightIndex, widthIndex, energyMatrix);
-                    }
-                    if (widthIndex < energyMatrix[heightIndex].length - 1) {
-                        linkVerticesInGraph(energyWeightedGraphVertical, heightIndex - 1, widthIndex + 1, heightIndex, widthIndex, energyMatrix);
-                    }
-                    linkVerticesInGraph(energyWeightedGraphVertical, heightIndex - 1, widthIndex, heightIndex, widthIndex, energyMatrix);
-                }
-            }
-        }
-        return energyWeightedGraphVertical;
-    }
-
-    private void linkVerticesInGraph(EdgeWeightedDigraph energyWeightedGraphVertical, int i1, int j1, int i2, int j2, double[][] energyMatrix) {
-        int fromPixelGraphIndex = getGraphPixelIndex(i1, j1, energyMatrix);
-        int toPixelGraphIndex = getGraphPixelIndex(i2, j2, energyMatrix);
-        energyWeightedGraphVertical.addEdge(new DirectedEdge(fromPixelGraphIndex, toPixelGraphIndex, energyMatrix[i1][j1]));
-    }
-
     private int getGraphPixelIndex(int i, int j, double[][] energyMatrix) {
         return energyMatrix[0].length * i + j;
-    }
-
-    private int getGraphPixelIndex1(int i, int j, double[][] energyMatrix) {
-        return i + j * energyMatrix.length;
     }
 
     private void removePathFromArray(double[][] energyMatrix, int[] a) {
@@ -270,67 +238,6 @@ public class SeamCarver {
                 double calculatedEnergy = energy(widthIndex, heightIndex);
                 energyMatrix[heightIndex][widthIndex] = calculatedEnergy;
             }
-        }
-    }
-
-    private LinkedList<Coordinate> getKids(Coordinate coordinate) {
-        LinkedList<Coordinate> kids = new LinkedList<Coordinate>();
-        if (coordinate.getY() > imageMatrix.length - 2) {
-            return kids;
-        }
-        if (coordinate.getX() > 0) {
-            kids.add(new Coordinate(coordinate.getX() - 1, coordinate.getY() + 1));
-        }
-        if (coordinate.getX() < imageMatrix[0].length - 1) {
-            kids.add(new Coordinate(coordinate.getX() + 1, coordinate.getY() + 1));
-        }
-        kids.add(new Coordinate(coordinate.getX(), coordinate.getY() + 1));
-
-        return kids;
-    }
-
-    private class Coordinate {
-        int x, y;
-
-        public Coordinate(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        private int getX() {
-            return x;
-        }
-
-        private void setX(int x) {
-            this.x = x;
-        }
-
-        private int getY() {
-            return y;
-        }
-
-        private void setY(int y) {
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Coordinate that = (Coordinate) o;
-
-            if (y != that.y) return false;
-            if (x != that.x) return false;
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = x;
-            result = 31 * result + y;
-            return result;
         }
     }
 
