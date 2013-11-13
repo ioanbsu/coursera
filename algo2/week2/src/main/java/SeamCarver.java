@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  * Date: 11/10/13
@@ -21,7 +21,7 @@ public class SeamCarver {
     public SeamCarver(Picture picture) {
         this.picture = picture;
         initImageMatrix(picture);
-        calculateEnergyAndImageMatrix();
+        calculateEnergyMatrix();
     }
 
     /**
@@ -61,7 +61,7 @@ public class SeamCarver {
      * @return energy of pixel at column x and row y
      */
     public double energy(int x, int y) {
-        if (x < 0 || y < 0 || x > energyMatrix[0].length || y > energyMatrix.length) {
+        if (x < 0 || y < 0 || x >= energyMatrix[0].length || y >= energyMatrix.length) {
             throw new IndexOutOfBoundsException();
         }
         if (x == 0 || x == width() - 1 || y == 0 || y == height() - 1) {
@@ -83,11 +83,9 @@ public class SeamCarver {
      * @return sequence of indices for horizontal seam
      */
     public int[] findHorizontalSeam() {
-        transformEnergyMatrix();
-        calculateEnergyAndImageMatrix();
+        transformImageMatrix();
         int[] horizontalSeam = findVerticalSeam();
-        transformEnergyMatrix();
-        calculateEnergyAndImageMatrix();
+        transformImageMatrix();
         return horizontalSeam;
     }
 
@@ -105,12 +103,10 @@ public class SeamCarver {
      * @param a the horizontal seam path
      */
     public void removeHorizontalSeam(int[] a) {
-        transformEnergyMatrix();
-        calculateEnergyAndImageMatrix();
+        transformImageMatrix();
         removeVerticalSeam(a);
 
-        transformEnergyMatrix();
-        calculateEnergyAndImageMatrix();
+        transformImageMatrix();
 
     }
 
@@ -133,29 +129,56 @@ public class SeamCarver {
     }
 
     private int[] calculatePath(double[][] energyMatrix) {
-        int[] path = new int[energyMatrix.length + 2];
-        EdgeWeightedDigraph pathsGraph = buildGraph(energyMatrix);
+        int[] newPath = new int[energyMatrix.length];
+        double minFoundDistance = Double.POSITIVE_INFINITY;
+        int minFoundDistancePathIndex = -1;
+        DirectedEdge[] minEdgeTo = new DirectedEdge[imageMatrix[0].length * imageMatrix.length];
 
-        int startEdge = energyMatrix.length * energyMatrix[0].length;
-        int endEdge = energyMatrix.length * energyMatrix[0].length + 1;
-        for (int i = 0; i < energyMatrix[0].length - 1; i++) {
-            pathsGraph.addEdge(new DirectedEdge(startEdge, i, 0));
-            int graphVertexIndex = getGraphPixelIndex(energyMatrix.length - 1, i, energyMatrix);
-            pathsGraph.addEdge(new DirectedEdge(graphVertexIndex, endEdge, 0));
+        double[] distTo = new double[imageMatrix[0].length * imageMatrix.length];
+        for (int i = 0; i < imageMatrix[0].length * imageMatrix.length; i++) {
+            if (i < imageMatrix[0].length) {
+                distTo[i] = 0;
+            } else {
+                distTo[i] = Double.POSITIVE_INFINITY;
+            }
+        }
+        DirectedEdge[] edgeTo = new DirectedEdge[imageMatrix[0].length * imageMatrix.length];
 
+        for (int colNum = 1; colNum < imageMatrix[0].length - 1; colNum++) {
+            for (int rowNum = 0; rowNum < imageMatrix.length - 1; rowNum++) {
+                int v = getGraphPixelIndex(rowNum, colNum, energyMatrix);
+                LinkedList<Coordinate> kids = getKids(new Coordinate(colNum, rowNum));
+                for (Coordinate kid : kids) {
+                    int w = getGraphPixelIndex(kid.getY(), kid.getX(), energyMatrix);
+                    relax(new DirectedEdge(v, w, energyMatrix[rowNum][colNum]), distTo, edgeTo);
+                }
+            }
         }
-        AcyclicSP acyclicSP1 = new AcyclicSP(pathsGraph, startEdge);
-        acyclicSP1.pathTo(endEdge);
-        int pathCounter = 0;
-        DirectedEdge lastDirectedEdge = null;
-        for (DirectedEdge directedEdge : acyclicSP1.pathTo(endEdge)) {
-            lastDirectedEdge = directedEdge;
-            path[pathCounter++] = directedEdge.from() % energyMatrix[0].length;
+
+        for (int i = imageMatrix.length * imageMatrix[0].length - imageMatrix[0].length; i < imageMatrix.length * imageMatrix[0].length; i++) {
+            if (distTo[i] < minFoundDistance) {
+                minFoundDistancePathIndex = i;
+                minFoundDistance = distTo[i];
+                minEdgeTo = edgeTo;
+            }
         }
-        if (lastDirectedEdge != null) {
-            path[pathCounter] = lastDirectedEdge.from() % energyMatrix[0].length;
+
+        int counter = energyMatrix.length - 1;
+        DirectedEdge nextEdge = minEdgeTo[minFoundDistancePathIndex];
+        newPath[counter--] = nextEdge.to() % energyMatrix[0].length;
+        while (nextEdge != null) {
+            newPath[counter--] = nextEdge.from() % energyMatrix[0].length;
+            nextEdge = minEdgeTo[nextEdge.from()];
         }
-        return Arrays.copyOfRange(path, 1, path.length - 1);
+        return newPath;
+    }
+
+    private void relax(DirectedEdge e, double[] distTo, DirectedEdge[] edgeTo) {
+        int v = e.from(), w = e.to();
+        if (distTo[w] > distTo[v] + e.weight()) {
+            distTo[w] = distTo[v] + e.weight();
+            edgeTo[w] = e;
+        }
     }
 
     private EdgeWeightedDigraph buildGraph(double[][] energyMatrix) {
@@ -184,6 +207,10 @@ public class SeamCarver {
 
     private int getGraphPixelIndex(int i, int j, double[][] energyMatrix) {
         return energyMatrix[0].length * i + j;
+    }
+
+    private int getGraphPixelIndex1(int i, int j, double[][] energyMatrix) {
+        return i + j * energyMatrix.length;
     }
 
     private void removePathFromArray(double[][] energyMatrix, int[] a) {
@@ -225,7 +252,18 @@ public class SeamCarver {
         }
     }
 
-    private void calculateEnergyAndImageMatrix() {
+    private void transformImageMatrix() {
+        int[][] newImageMatrix = new int[imageMatrix[0].length][imageMatrix.length];
+        for (int i = 0; i < imageMatrix.length; i++) {
+            for (int j = 0; j < imageMatrix[i].length; j++) {
+                newImageMatrix[j][i] = imageMatrix[i][j];
+            }
+        }
+        imageMatrix = newImageMatrix;
+        calculateEnergyMatrix();
+    }
+
+    private void calculateEnergyMatrix() {
         energyMatrix = new double[height()][width()];
         for (int heightIndex = 0; heightIndex < height(); heightIndex++) {
             for (int widthIndex = 0; widthIndex < width(); widthIndex++) {
@@ -235,16 +273,65 @@ public class SeamCarver {
         }
     }
 
-    private void transformEnergyMatrix() {
-        int[][] newImageMatrix = new int[imageMatrix[0].length][imageMatrix.length];
-        for (int i = 0; i < imageMatrix.length; i++) {
-            for (int j = 0; j < imageMatrix[i].length; j++) {
-                newImageMatrix[j][i] = imageMatrix[i][j];
-            }
+    private LinkedList<Coordinate> getKids(Coordinate coordinate) {
+        LinkedList<Coordinate> kids = new LinkedList<Coordinate>();
+        if (coordinate.getY() > imageMatrix.length - 2) {
+            return kids;
         }
-        imageMatrix = newImageMatrix;
+        if (coordinate.getX() > 0) {
+            kids.add(new Coordinate(coordinate.getX() - 1, coordinate.getY() + 1));
+        }
+        if (coordinate.getX() < imageMatrix[0].length - 1) {
+            kids.add(new Coordinate(coordinate.getX() + 1, coordinate.getY() + 1));
+        }
+        kids.add(new Coordinate(coordinate.getX(), coordinate.getY() + 1));
 
+        return kids;
     }
 
+    private class Coordinate {
+        int x, y;
+
+        public Coordinate(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        private int getX() {
+            return x;
+        }
+
+        private void setX(int x) {
+            this.x = x;
+        }
+
+        private int getY() {
+            return y;
+        }
+
+        private void setY(int y) {
+            this.y = y;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Coordinate that = (Coordinate) o;
+
+            if (y != that.y) return false;
+            if (x != that.x) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = x;
+            result = 31 * result + y;
+            return result;
+        }
+    }
 
 }
