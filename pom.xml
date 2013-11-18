@@ -23,6 +23,7 @@
         <module>algorythms</module>
         <module>algo2/week1</module>
         <module>algo2/week2</module>
+        <module>algo2/week3</module>
     </modules>
 
     <dependencyManagement>
