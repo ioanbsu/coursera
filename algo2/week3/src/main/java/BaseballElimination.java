@@ -1,6 +1,5 @@
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Date: 11/17/13
@@ -113,6 +112,10 @@ public class BaseballElimination {
      */
     public boolean isEliminated(String team) {
         int teamIndexInArray = getTeamIndexInArray(team);
+        Team trivialTeam = triviallyIlliminatedByTeam(teamIndexInArray);
+        if (trivialTeam != null) {
+            return true;
+        }
         int numberOfTeamsButOne = numberOfTeams() - 1;
         int gamesBetweenTeams = (numberOfTeamsButOne - 1) * numberOfTeamsButOne / 2;
         int totalVertices = 2 + gamesBetweenTeams + numberOfTeamsButOne;
@@ -136,20 +139,22 @@ public class BaseballElimination {
             return null;
         }
         int teamIndexInArray = getTeamIndexInArray(teamStr);
+        Team trivialTeam = triviallyIlliminatedByTeam(teamIndexInArray);
+        if (trivialTeam != null) {
+            return Arrays.asList(trivialTeam.getTeamName());
+        }
         int numberOfTeamsButOne = numberOfTeams() - 1;
         int gamesBetweenTeams = (numberOfTeamsButOne - 1) * numberOfTeamsButOne / 2;
         int totalVertices = 2 + gamesBetweenTeams + numberOfTeamsButOne;
         FlowNetwork teamsFlowNetwork = getTeamsFlowNetwork(teamIndexInArray, numberOfTeamsButOne, gamesBetweenTeams, totalVertices);
-        List<String> certificateOfElimination = new ArrayList<String>();
-
-        for (FlowEdge flowEdge : teamsFlowNetwork.adj(0)) {
-            if (flowEdge.capacity() != 0) {
-
-            }
-        }
-        for (int i = 0; i < teams.length; i++) {
-            if (!teams[i].getTeamName().equals(teamStr)) {
-                certificateOfElimination.add(teams[i].getTeamName());
+        Set<String> certificateOfElimination = new HashSet<String>();
+        FordFulkerson fordFulkerson = new FordFulkerson(teamsFlowNetwork, 0, totalVertices - 1);
+        for (int i = 0; i < numberOfTeamsButOne; i++) {
+            int rightTeamIndex = i >= teamIndexInArray ? i + 1 : i;
+            for (FlowEdge flowEdge : teamsFlowNetwork.adj(1 + gamesBetweenTeams + i)) {
+                if (flowEdge.flow() == flowEdge.capacity() && flowEdge.capacity() != Double.POSITIVE_INFINITY) {
+                    certificateOfElimination.add(teams[rightTeamIndex].getTeamName());
+                }
             }
         }
         return certificateOfElimination;
@@ -177,7 +182,6 @@ public class BaseballElimination {
 
     private FlowNetwork getTeamsFlowNetwork(int teamIndexInArray, int numberOfTeamsButOne, int gamesBetweenTeams, int totalVertices) {
         FlowNetwork teamsFlowNetwork = new FlowNetwork(totalVertices);
-
         int nextVertexIndex = 1;
         for (int i = 0; i < numberOfTeamsButOne; i++) {
             int matrixI = i >= teamIndexInArray ? i + 1 : i;
@@ -191,10 +195,21 @@ public class BaseballElimination {
         }
         for (int secondLevelIndex = 0; secondLevelIndex < numberOfTeamsButOne; secondLevelIndex++) {
             int rightTeamIndex = secondLevelIndex >= teamIndexInArray ? secondLevelIndex + 1 : secondLevelIndex;
-            int edgeCapacity = Math.max(0, teams[teamIndexInArray].getWins() + teams[teamIndexInArray].getLeft() - teams[rightTeamIndex].getWins());
-            teamsFlowNetwork.addEdge(new FlowEdge(gamesBetweenTeams + 1 + secondLevelIndex, totalVertices - 1, edgeCapacity));
+            int edgeCapacity = teams[teamIndexInArray].getWins() + teams[teamIndexInArray].getLeft() - teams[rightTeamIndex].getWins();
+            teamsFlowNetwork.addEdge(new FlowEdge(nextVertexIndex++, totalVertices - 1, edgeCapacity));
         }
         return teamsFlowNetwork;
+    }
+
+    private Team triviallyIlliminatedByTeam(int teamToCheck) {
+        for (int i = 0; i < numberOfTeams(); i++) {
+            if (i != teamToCheck) {
+                if (teams[i].getWins() > teams[teamToCheck].getWins() + teams[teamToCheck].getLeft()) {
+                    return teams[i];
+                }
+            }
+        }
+        return null;
     }
 
     private class Team {
