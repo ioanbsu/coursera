@@ -152,9 +152,13 @@ public class BaseballElimination {
         for (int i = 0; i < numberOfTeamsButOne; i++) {
             int rightTeamIndex = i >= teamIndexInArray ? i + 1 : i;
             for (FlowEdge flowEdge : teamsFlowNetwork.adj(1 + gamesBetweenTeams + i)) {
-                if (flowEdge.flow() == flowEdge.capacity() && flowEdge.capacity() != Double.POSITIVE_INFINITY) {
+                if(fordFulkerson.inCut(flowEdge.from())){
                     certificateOfElimination.add(teams[rightTeamIndex].getTeamName());
+
                 }
+//                if (flowEdge.flow() == flowEdge.capacity() && flowEdge.capacity() != Double.POSITIVE_INFINITY) {
+//                    certificateOfElimination.add(teams[rightTeamIndex].getTeamName());
+//                }
             }
         }
         return certificateOfElimination;
