@@ -1,6 +1,5 @@
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -9,10 +8,8 @@ import java.util.Set;
 public class BoggleSolver {
 
 
-    private TSTFast<Integer> trieTree;
+    private IoaNFastTrie trieTree;
     private String[] dictionary;
-
-    private static int wordsTried = 0;
 
     public static void main(String[] args) {
         In in = new In(args[0]);
@@ -27,7 +24,6 @@ public class BoggleSolver {
         }
         StdOut.println("Score = " + score);
         StdOut.println(stopwatch.elapsedTime());
-
     }
 
     /**
@@ -39,9 +35,9 @@ public class BoggleSolver {
     public BoggleSolver(String[] dictionary) {
         this.dictionary = new String[dictionary.length];
         System.arraycopy(dictionary, 0, this.dictionary, 0, dictionary.length);
-        trieTree = new TSTFast<Integer>();
-        for (int i = 0; i < dictionary.length; i++) {
-            trieTree.put(dictionary[i], i);
+        trieTree = new IoaNFastTrie();
+        for (String word : dictionary) {
+            trieTree.put(word);
         }
     }
 
@@ -58,7 +54,7 @@ public class BoggleSolver {
             for (int col = 0; col < board.cols(); col++) {
                 boolean[][] visitedArray = new boolean[board.rows()][board.cols()];
                 visitedArray[row][col] = true;
-                findWords(getLetter(board, row, col), board, row, col, allValidWords, visitedArray);
+                findWords(null, getLetter(board, row, col), board, row, col, allValidWords, visitedArray);
                 visitedArray[row][col] = false;
             }
         }
@@ -79,44 +75,52 @@ public class BoggleSolver {
         int wordLength = word.length();
         if (wordLength == 3 || wordLength == 4) {
             return 1;
-        }
-        if (wordLength == 5) {
+        } else if (wordLength == 5) {
             return 2;
-        }
-        if (wordLength == 6) {
+        } else if (wordLength == 6) {
             return 3;
-        }
-        if (wordLength == 7) {
+        } else if (wordLength == 7) {
             return 5;
-        }
-        if (wordLength >= 8) {
+        } else if (wordLength >= 8) {
             return 11;
         }
         return 0;
     }
 
 
-    private void findWords(String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
+    private void findWords(IoaNFastTrie.Node nodeToStart, String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
         if (word.length() > 2 && trieTree.contains(word)) {
             allValidWords.add(word);
         }
-        if (trieTree.hasWord(word)) {
-            branchWord(word, board, row + 1, col, allValidWords, visitedArray);
-            branchWord(word, board, row - 1, col, allValidWords, visitedArray);
-            branchWord(word, board, row, col + 1, allValidWords, visitedArray);
-            branchWord(word, board, row, col - 1, allValidWords, visitedArray);
-            branchWord(word, board, row - 1, col - 1, allValidWords, visitedArray);
-            branchWord(word, board, row + 1, col - 1, allValidWords, visitedArray);
-            branchWord(word, board, row - 1, col + 1, allValidWords, visitedArray);
-            branchWord(word, board, row + 1, col + 1, allValidWords, visitedArray);
+        if (word.length() < 4) {
+            branchWord(nodeToStart, word, board, row + 1, col, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row - 1, col, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row, col + 1, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row, col - 1, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row - 1, col - 1, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row + 1, col - 1, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row - 1, col + 1, allValidWords, visitedArray);
+            branchWord(nodeToStart, word, board, row + 1, col + 1, allValidWords, visitedArray);
+        } else {
+            IoaNFastTrie.Node foundNode = trieTree.getNode(word, nodeToStart);
+            if (foundNode != null) {
+                branchWord(foundNode, word, board, row + 1, col, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row - 1, col, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row, col + 1, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row, col - 1, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row - 1, col - 1, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row + 1, col - 1, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row - 1, col + 1, allValidWords, visitedArray);
+                branchWord(foundNode, word, board, row + 1, col + 1, allValidWords, visitedArray);
+            }
         }
     }
 
-    private void branchWord(String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
+    private void branchWord(IoaNFastTrie.Node nodeToStart, String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
         if (row < board.rows() && row >= 0 && col < board.cols() && col >= 0 && !visitedArray[row][col]) {
             visitedArray[row][col] = true;
             String letter = getLetter(board, row, col);
-            findWords(word + letter, board, row, col, allValidWords, visitedArray);
+            findWords(nodeToStart, word + letter, board, row, col, allValidWords, visitedArray);
             visitedArray[row][col] = false;
         }
     }
@@ -130,127 +134,103 @@ public class BoggleSolver {
 
 
     /**
-     * ===================================================================
-     *
-     * @param <Value>
+     * ===============================================================
      */
-    private class TSTFast<Value> {
+    private static class IoaNFastTrie {
+        private static final char CHAR_START_INDEX = 'A';
+        private Node root = new Node();
 
-        private int N;       // size
-        private Node root;   // root of TST
+        private static class Node {
+            private char val;
+            private int letterNumber = -1;
+            private boolean endOfTheWord = false;
+            private Node[] next = new Node['Z' - 'A' + 1];
 
-        private class Node {
-            private char c;                 // character
-            private Node left, mid, right;  // left, middle, and right subtries
-            private Value val;              // value associated with string
-        }
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
 
+                Node node = (Node) o;
 
-        // return number of key-value pairs
-        public int size() {
-            return N;
-        }
+                if (letterNumber != node.letterNumber) return false;
+                if (val != node.val) return false;
 
-        /**
-         * ***********************************************************
-         * Is string key in the symbol table?
-         * ************************************************************
-         */
-        public boolean contains(String key) {
-            return get(key) != null;
-        }
-
-        public Value get(String key) {
-            if (key == null) throw new NullPointerException();
-            if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
-            Node x = get(root, key, 0);
-            if (x == null) return null;
-            return x.val;
-        }
-
-        // return subtrie corresponding to given key
-        private Node get(Node x, String key, int d) {
-            if (key == null) throw new NullPointerException();
-            if (key.length() == 0) throw new IllegalArgumentException("key must have length >= 1");
-            if (x == null) {
-                return null;
-            }
-            char c = key.charAt(d);
-            if (c < x.c) {
-                return get(x.left, key, d);
-            } else if (c > x.c) {
-                return get(x.right, key, d);
-            } else if (d < key.length() - 1) {
-                return get(x.mid, key, d + 1);
-            } else {
-                return x;
-            }
-        }
-
-
-        /**
-         * ***********************************************************
-         * Insert string s into the symbol table.
-         * ************************************************************
-         */
-        public void put(String s, Value val) {
-            if (!contains(s)) N++;
-            root = put(root, s, val, 0);
-        }
-
-        private Node put(Node x, String s, Value val, int d) {
-            char c = s.charAt(d);
-            if (x == null) {
-                x = new Node();
-                x.c = c;
-            }
-            if (c < x.c) x.left = put(x.left, s, val, d);
-            else if (c > x.c) x.right = put(x.right, s, val, d);
-            else if (d < s.length() - 1) x.mid = put(x.mid, s, val, d + 1);
-            else x.val = val;
-            return x;
-        }
-
-
-        // all keys starting with given prefix
-        public boolean hasWord(String prefix) {
-            Node x = get(root, prefix, 0);
-            return x != null && collectFast(x.mid, prefix);
-        }
-
-        // all keys in subtrie rooted at x with given prefix
-        private boolean collectFast(Node x, String prefix) {
-            boolean hasWord;
-            if (x == null) {
-                return false;
-            }
-            if (x.val != null) {
                 return true;
             }
-            hasWord = collectFast(x.left, prefix);
-            if (hasWord) {
-                return true;
+
+            @Override
+            public int hashCode() {
+                int result = (int) val;
+                result = 31 * result + letterNumber;
+                return result;
             }
-            hasWord = collectFast(x.mid, prefix + x.c);
-            if (hasWord) {
-                return true;
-            }
-            hasWord = collectFast(x.right, prefix);
-            return hasWord;
         }
 
 
-        public void collect(Node x, String prefix, int i, String pat, Queue<String> q) {
-            if (x == null) return;
-            char c = pat.charAt(i);
-            if (c == '.' || c < x.c) collect(x.left, prefix, i, pat, q);
-            if (c == '.' || c == x.c) {
-                if (i == pat.length() - 1 && x.val != null) q.enqueue(prefix + x.c);
-                if (i < pat.length() - 1) collect(x.mid, prefix + x.c, i + 1, pat, q);
-            }
-            if (c == '.' || c > x.c) collect(x.right, prefix, i, pat, q);
+        public void put(String word) {
+            fastPut(word);
         }
 
+        private void fastPut(String word) {
+            Node nodeToSearch = root;
+            for (int i = 0; i < word.length(); i++) {
+                char searchLetter = word.charAt(i);
+                int letterIndex = searchLetter - CHAR_START_INDEX;
+                if (nodeToSearch.next[letterIndex] == null) {
+                    Node child = new Node();
+                    child.val = searchLetter;
+                    child.letterNumber = i;
+                    nodeToSearch.next[letterIndex] = child;
+                    nodeToSearch = child;
+                } else {
+                    nodeToSearch = nodeToSearch.next[letterIndex];
+                }
+            }
+            nodeToSearch.endOfTheWord = true;
+        }
+
+        public boolean contains(String word) {
+            Node nodeToSearch = root;
+            for (int i = 0; i < word.length(); i++) {
+                char searchLetter = word.charAt(i);
+                int letterIndex = searchLetter - CHAR_START_INDEX;
+                if (nodeToSearch.next[letterIndex] == null) {
+                    return false;
+                }
+                nodeToSearch = nodeToSearch.next[letterIndex];
+            }
+            return nodeToSearch.endOfTheWord;
+        }
+
+        public boolean hasStartsWith(String word) {
+            Node nodeToSearch = root;
+            for (int i = 0; i < word.length(); i++) {
+                char searchLetter = word.charAt(i);
+                int letterIndex = searchLetter - CHAR_START_INDEX;
+                if (nodeToSearch.next[letterIndex] == null) {
+                    return false;
+                }
+                nodeToSearch = nodeToSearch.next[letterIndex];
+            }
+            return true;
+        }
+
+
+        public Node getNode(String word, Node nodeToSearch) {
+            if (nodeToSearch == null) {
+                nodeToSearch = root;
+            }
+            for (int i = nodeToSearch.letterNumber + 1; i < word.length(); i++) {
+                char searchLetter = word.charAt(i);
+                int letterIndex = searchLetter - CHAR_START_INDEX;
+                if (nodeToSearch.next[letterIndex] == null) {
+                    return null;
+                }
+                nodeToSearch = nodeToSearch.next[letterIndex];
+            }
+            return nodeToSearch;
+        }
 
     }
 }
