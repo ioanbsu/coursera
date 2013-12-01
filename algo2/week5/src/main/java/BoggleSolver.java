@@ -1,4 +1,6 @@
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -95,8 +97,6 @@ public class BoggleSolver {
 
 
     private void findWords(String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
-//        wordsTried++;
-        // System.out.println(wordsTried);
         if (word.length() > 2 && trieTree.contains(word)) {
             allValidWords.add(word);
         }
