@@ -9,22 +9,23 @@ public class BoggleSolver {
 
     private IoaNFastTrie trieTree;
     private String[] dictionary;
-
+    private Set<String> allValidWords;
+    private BoggleBoard board;
 
     public static void main(String[] args) throws InterruptedException {
 //        while (true) {
-            In in = new In(args[0]);
-            String[] dictionary = in.readAllStrings();
-            BoggleSolver solver = new BoggleSolver(dictionary);
-            BoggleBoard board = new BoggleBoard(args[1]);
-            int score = 0;
-            Stopwatch stopwatch = new Stopwatch();
-            for (String word : solver.getAllValidWords(board)) {
-                StdOut.println(word);
-                score += solver.scoreOf(word);
-            }
-            StdOut.println("Score = " + score);
-            StdOut.println(stopwatch.elapsedTime());
+        In in = new In(args[0]);
+        String[] dictionary = in.readAllStrings();
+        BoggleSolver solver = new BoggleSolver(dictionary);
+        BoggleBoard board = new BoggleBoard(args[1]);
+        int score = 0;
+        Stopwatch stopwatch = new Stopwatch();
+        for (String word : solver.getAllValidWords(board)) {
+            StdOut.println(word);
+            score += solver.scoreOf(word);
+        }
+        StdOut.println("Score = " + score);
+        StdOut.println(stopwatch.elapsedTime());
 //        }
     }
 
@@ -51,12 +52,13 @@ public class BoggleSolver {
      * @return collection of boards
      */
     public Iterable<String> getAllValidWords(BoggleBoard board) {
-        Set<String> allValidWords = new HashSet<String>();
+        allValidWords = new HashSet<String>();
+        this.board = board;
         for (int row = 0; row < board.rows(); row++) {
             for (int col = 0; col < board.cols(); col++) {
                 boolean[][] visitedArray = new boolean[board.rows()][board.cols()];
                 visitedArray[row][col] = true;
-                findWords(null, getLetter(board, row, col), board, row, col, allValidWords, visitedArray);
+                findWords(null, getLetter(board, row, col), row, col, visitedArray);
                 visitedArray[row][col] = false;
             }
         }
@@ -90,28 +92,28 @@ public class BoggleSolver {
     }
 
 
-    private void findWords(IoaNFastTrie.Node nodeToStart, String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
+    private void findWords(IoaNFastTrie.Node nodeToStart, String word, int row, int col, boolean[][] visitedArray) {
         IoaNFastTrie.Node foundNode = trieTree.getNode(word, nodeToStart);
         if (foundNode != null) {
-            if (word.length() > 2 && trieTree.contains(word)) {
+            if (foundNode.endOfTheWord) {
                 allValidWords.add(word);
             }
-            branchWord(foundNode, word, board, row + 1, col, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row - 1, col, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row, col + 1, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row, col - 1, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row - 1, col - 1, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row + 1, col - 1, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row - 1, col + 1, allValidWords, visitedArray);
-            branchWord(foundNode, word, board, row + 1, col + 1, allValidWords, visitedArray);
+            branchWord(foundNode, word, row + 1, col, visitedArray);
+            branchWord(foundNode, word, row - 1, col, visitedArray);
+            branchWord(foundNode, word, row, col + 1, visitedArray);
+            branchWord(foundNode, word, row, col - 1, visitedArray);
+            branchWord(foundNode, word, row - 1, col - 1, visitedArray);
+            branchWord(foundNode, word, row + 1, col - 1, visitedArray);
+            branchWord(foundNode, word, row - 1, col + 1, visitedArray);
+            branchWord(foundNode, word, row + 1, col + 1, visitedArray);
         }
     }
 
-    private void branchWord(IoaNFastTrie.Node nodeToStart, String word, BoggleBoard board, int row, int col, Set<String> allValidWords, boolean[][] visitedArray) {
+    private void branchWord(IoaNFastTrie.Node nodeToStart, String word, int row, int col, boolean[][] visitedArray) {
         if (row < board.rows() && row >= 0 && col < board.cols() && col >= 0 && !visitedArray[row][col]) {
             visitedArray[row][col] = true;
             String letter = getLetter(board, row, col);
-            findWords(nodeToStart, word + letter, board, row, col, allValidWords, visitedArray);
+            findWords(nodeToStart, word + letter, row, col, visitedArray);
             visitedArray[row][col] = false;
         }
     }
@@ -132,11 +134,10 @@ public class BoggleSolver {
         private Node root = new Node();
         public static final int ARRAYS_SIZE = 'Z' - 'A' + 1;
 
-        private static class Node  {
+        private static class Node {
             private int letterNumber = -1;
             private boolean endOfTheWord = false;
             private Node[] next = new Node[ARRAYS_SIZE];
-
         }
 
         public void put(String word) {
@@ -160,15 +161,7 @@ public class BoggleSolver {
         }
 
         public boolean contains(String word) {
-            Node nodeToSearch = root;
-            for (int i = 0; i < word.length(); i++) {
-                int letterIndex = word.charAt(i) - CHAR_START_INDEX;
-                if (nodeToSearch.next[letterIndex] == null) {
-                    return false;
-                }
-                nodeToSearch = nodeToSearch.next[letterIndex];
-            }
-            return nodeToSearch.endOfTheWord;
+            return getNode(word, root).endOfTheWord;
         }
 
         public Node getNode(String word, Node nodeToSearch) {
