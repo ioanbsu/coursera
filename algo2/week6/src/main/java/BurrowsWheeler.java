@@ -1,5 +1,5 @@
 import java.util.Arrays;
-import java.util.Date;
+import java.util.Comparator;
 
 /**
  * @author ivanbahdanau
@@ -29,37 +29,55 @@ public class BurrowsWheeler {
         BinaryStdOut.close();
     }
 
+
     /**
      * apply Burrows-Wheeler decoding, reading from standard input and writing to standard output
      */
     public static void decode() {
-        int fisrtCharacter = BinaryStdIn.readInt(32);
-//        BinaryStdOut.write("Started decoding  " + new Date());
-        String achievedStr = BinaryStdIn.readString();
-        char[] t = achievedStr.toCharArray();
-        char[] first = achievedStr.toCharArray();
-        Arrays.sort(first);
-        int[] next = new int[t.length];
-        boolean[] processed = new boolean[t.length];
+        StringBuilder str = new StringBuilder();
+        int s = BinaryStdIn.readInt(32);
+        while (!BinaryStdIn.isEmpty())
+            str = str.append(BinaryStdIn.readChar());
+        int next[] = new int[str.length()];
+        int[] index = argsort(str.toString().toCharArray(), true);
+        for (int i = 0; i < str.length(); i++) {
+            next[i] = index[i];
+        }
 
-        for (int frstIndex = 0; frstIndex < first.length; frstIndex++) {
-            char searchChar = first[frstIndex];
-            for (int tIndx = 0; tIndx < t.length; tIndx++) {
-                if (!processed[tIndx] && searchChar == t[tIndx]) {
-                    next[frstIndex] = tIndx;
-                    processed[tIndx] = true;
-                    break;
-                }
-            }
+        int idx = 0;
+        int pt = next[s];
+        while (idx < str.length() - 1) {
+            BinaryStdOut.write(str.charAt(pt));
+            pt = next[pt];
+            idx++;
         }
-        int nextIndex = fisrtCharacter;
-        for (int i = 0; i < t.length; i++) {
-            BinaryStdOut.write(first[nextIndex], 8);
-            nextIndex = next[nextIndex];
-        }
-//        BinaryStdOut.write("Done decoding  " + new Date());
+        BinaryStdOut.write(str.charAt(s));
+        // System.out.print(str.charAt(s));
+        BinaryStdIn.close();
         BinaryStdOut.close();
+    }
 
+
+    private static int[] argsort(final char[] a, final boolean ascending) {
+        Integer[] indexes = new Integer[a.length];
+        for (int i = 0; i < indexes.length; i++) {
+            indexes[i] = i;
+        }
+        Arrays.sort(indexes, new Comparator<Integer>() {
+            @Override
+            public int compare(final Integer i1, final Integer i2) {
+                return (ascending ? 1 : -1) * Float.compare(a[i1], a[i2]);
+            }
+        });
+        return asArray(indexes);
+    }
+
+    private static <T extends Number> int[] asArray(final T... a) {
+        int[] b = new int[a.length];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = a[i].intValue();
+        }
+        return b;
     }
 
     /**
