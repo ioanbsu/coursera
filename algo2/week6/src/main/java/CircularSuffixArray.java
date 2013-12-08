@@ -24,7 +24,6 @@ public class CircularSuffixArray {
 
         }
         sort(sortedSuffixes);
-//        System.out.println("");
     }
 
     /**
