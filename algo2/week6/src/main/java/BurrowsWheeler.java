@@ -38,12 +38,7 @@ public class BurrowsWheeler {
         int s = BinaryStdIn.readInt(32);
         while (!BinaryStdIn.isEmpty())
             str = str.append(BinaryStdIn.readChar());
-        int next[] = new int[str.length()];
-        int[] index = argsort(str.toString().toCharArray(), true);
-        for (int i = 0; i < str.length(); i++) {
-            next[i] = index[i];
-        }
-
+        int[] next = argsort(str.toString().toCharArray());
         int idx = 0;
         int pt = next[s];
         while (idx < str.length() - 1) {
@@ -58,7 +53,7 @@ public class BurrowsWheeler {
     }
 
 
-    private static int[] argsort(final char[] a, final boolean ascending) {
+    private static int[] argsort(final char[] a) {
         Integer[] indexes = new Integer[a.length];
         for (int i = 0; i < indexes.length; i++) {
             indexes[i] = i;
@@ -66,7 +61,7 @@ public class BurrowsWheeler {
         Arrays.sort(indexes, new Comparator<Integer>() {
             @Override
             public int compare(final Integer i1, final Integer i2) {
-                return (ascending ? 1 : -1) * Float.compare(a[i1], a[i2]);
+                return Float.compare(a[i1], a[i2]);
             }
         });
         return asArray(indexes);
@@ -96,7 +91,7 @@ public class BurrowsWheeler {
 
 //    java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" BurrowsWheeler - < abra.txt | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" HexDump 16
 //    java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" BurrowsWheeler - < abra.txt | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:"  BurrowsWheeler +
-//    java -Xmx1024M -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" BurrowsWheeler - < aesop.txt | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:"  BurrowsWheeler +
+//    java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" BurrowsWheeler - < aesop.txt | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:"  BurrowsWheeler +
 //   time  java -Xmx1024M -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" BurrowsWheeler - < aesop.txt | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" MoveToFront - | java -classpath "/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/algs4.jar:/Users/ivanbahdanau/IdeaProjects/git/coursera/libs/stdlib.jar:" Huffman - > mobyDickOutputFileName
 
 }
